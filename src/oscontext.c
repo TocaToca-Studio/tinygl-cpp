@@ -22,7 +22,7 @@ ostgl_create_context(const int xsize,
                           convertion */
   assert(numbuffers >= 1);
   
-  context = gl_malloc(sizeof(ostgl_context));
+  context = (ostgl_context *) gl_malloc(sizeof(ostgl_context));
   assert(context);
   context->zbs = gl_malloc(sizeof(void*)*numbuffers);
   context->framebuffers = gl_malloc(sizeof(void*)*numbuffers);

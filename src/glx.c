@@ -62,7 +62,7 @@ GLXContext glXCreateContext( Display *dpy, XVisualInfo *vis,
   if (shareList != NULL) {
     gl_fatal_error("No sharing available in TinyGL");
   }
-  ctx=gl_malloc(sizeof(TinyGLXContext));
+  ctx=(TinyGLXContext* )gl_malloc(sizeof(TinyGLXContext));
   ctx->gl_context=NULL;
   ctx->visual_info=*vis;
   return (GLXContext) ctx;
@@ -93,7 +93,7 @@ static int bits_per_pixel(Display *dpy, XVisualInfo *visinfo)
    int bpp;
    char *data;
 
-   data = gl_malloc(8);
+   data = (char*) gl_malloc(8);
    if (data == NULL) 
        return visinfo->depth;
 
@@ -125,7 +125,7 @@ static int create_ximage(TinyGLXContext *ctx,
 
   if (!ctx->shm_use) goto no_shm;
 
-  ctx->shm_info=gl_malloc(sizeof(XShmSegmentInfo));
+  ctx->shm_info=(XShmSegmentInfo*)gl_malloc(sizeof(XShmSegmentInfo));
   ctx->ximage=XShmCreateImage(ctx->display,None,depth,ZPixmap,NULL,
                               ctx->shm_info,xsize,ysize);
   if (ctx->ximage == NULL) {

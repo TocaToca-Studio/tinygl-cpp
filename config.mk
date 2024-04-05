@@ -2,8 +2,8 @@
 # C compiler
 
 # linux
-CC= gcc
-CFLAGS= -g -Wall -O2
+CC= g++
+CFLAGS= -g -Wall -O3 -std=c++98
 LFLAGS=
 
 # for BeOS PPC

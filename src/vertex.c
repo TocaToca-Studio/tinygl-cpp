@@ -219,7 +219,7 @@ void glopVertex(GLContext * c, GLParam * p)
     if (n >= c->vertex_max) {
 	GLVertex *newarray;
 	c->vertex_max <<= 1;	/* just double size */
-	newarray = gl_malloc(sizeof(GLVertex) * c->vertex_max);
+	newarray = (GLVertex*)gl_malloc(sizeof(GLVertex) * c->vertex_max);
 	if (!newarray) {
 	    gl_fatal_error("unable to allocate GLVertex array.\n");
 	}
