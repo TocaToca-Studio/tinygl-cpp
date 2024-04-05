@@ -144,7 +144,7 @@ static int create_ximage(TinyGLXContext *ctx,
     XDestroyImage(ctx->ximage);
     goto no_shm;
   }
-  ctx->ximage->data=shmat(ctx->shm_info->shmid,0,0);
+  ctx->ximage->data=(char*)shmat(ctx->shm_info->shmid,0,0);
   if (ctx->ximage->data == (char *) -1) {
     fprintf(stderr,"XShm: error: shmat\n");
   no_shm2:
@@ -195,7 +195,7 @@ static int create_ximage(TinyGLXContext *ctx,
   no_shm:
     ctx->ximage=XCreateImage(ctx->display, None, depth, ZPixmap, 0, 
                              NULL,xsize,ysize, 8, 0);
-    framebuffer=gl_malloc(ysize * ctx->ximage->bytes_per_line);
+    framebuffer=(unsigned char*) gl_malloc(ysize * ctx->ximage->bytes_per_line);
     ctx->ximage->data = (char *)framebuffer;
     return 0;
 }
