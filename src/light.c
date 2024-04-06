@@ -78,7 +78,7 @@ void glopLight(GLContext *c,GLParam *p)
     {
       V4 pos;
       V4 _v=V4(v[0],v[1],v[2],v[3]); 
-      gl_M4_MulV4(&pos,c->matrix_stack_ptr[0],&_v);
+      pos =c->matrix_stack_ptr[0]->MulV4(_v);
 
       l->position=pos;
 

@@ -78,7 +78,7 @@ void glopMultMatrix(GLContext *c,GLParam *p)
     q+=4;
   }
 
-  gl_M4_MulLeft(c->matrix_stack_ptr[c->matrix_mode],&m);
+  c->matrix_stack_ptr[c->matrix_mode]->Mult(&m);
 
   gl_matrix_update(c);
 }
@@ -94,7 +94,7 @@ void glopPushMatrix(GLContext *c,GLParam *p)
 
   m=++c->matrix_stack_ptr[n];
   
-  gl_M4_Move(&m[0],&m[-1]);
+  m[0]=m[-1];
 
   gl_matrix_update(c);
 }
@@ -130,15 +130,15 @@ void glopRotate(GLContext *c,GLParam *p)
     break;
   case 4:
     if (u[0] < 0) angle=-angle;
-    gl_M4_Rotate(&m,angle,0);
+    m.Rotate(angle,0);
     break;
   case 2:
     if (u[1] < 0) angle=-angle;
-    gl_M4_Rotate(&m,angle,1);
+    m.Rotate(angle,1);
     break;
   case 1:
     if (u[2] < 0) angle=-angle;
-    gl_M4_Rotate(&m,angle,2);
+    m.Rotate(angle,2);
     break;
   default:
     {
@@ -174,7 +174,7 @@ void glopRotate(GLContext *c,GLParam *p)
     }
   }
 
-  gl_M4_MulLeft(c->matrix_stack_ptr[c->matrix_mode],&m);
+  c->matrix_stack_ptr[c->matrix_mode]->Mult(&m);
 
   gl_matrix_update(c);
 }
@@ -210,31 +210,16 @@ void glopTranslate(GLContext *c,GLParam *p)
 
 
 void glopFrustum(GLContext *c,GLParam *p)
-{
-  float *r;
+{ 
   M4 m;
   float left=p[1].f;
   float right=p[2].f;
   float bottom=p[3].f;
   float top=p[4].f;
   float near=p[5].f;
-  float farp=p[6].f;
-  float x,y,A,B,C,D;
-
-  x = (2.0*near) / (right-left);
-  y = (2.0*near) / (top-bottom);
-  A = (right+left) / (right-left);
-  B = (top+bottom) / (top-bottom);
-  C = -(farp+near) / ( farp-near);
-  D = -(2.0*farp*near) / (farp-near);
-
-  r=&m.m[0][0];
-  r[0]= x; r[1]=0; r[2]=A; r[3]=0;
-  r[4]= 0; r[5]=y; r[6]=B; r[7]=0;
-  r[8]= 0; r[9]=0; r[10]=C; r[11]=D;
-  r[12]= 0; r[13]=0; r[14]=-1; r[15]=0;
-
-  gl_M4_MulLeft(c->matrix_stack_ptr[c->matrix_mode],&m);
+  float farp=p[6].f; 
+  m=M4::Frustrum(left,right,bottom,top,near,farp);
+  c->matrix_stack_ptr[c->matrix_mode]->Mult(&m);
 
   gl_matrix_update(c);
 }

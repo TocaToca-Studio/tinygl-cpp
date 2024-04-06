@@ -85,14 +85,13 @@ void glopBegin(GLContext * c, GLParam * p)
 
 	if (c->lighting_enabled) {
 	    /* precompute inverse modelview */
-	    gl_M4_Inv(&tmp, c->matrix_stack_ptr[0]);
-	    gl_M4_Transpose(&c->matrix_model_view_inv, &tmp);
+		tmp.Inv(c->matrix_stack_ptr[0]);
+		c->matrix_model_view_inv.Transpose(&tmp); 
+		 
 	} else {
 	    float *m = &c->matrix_model_projection.m[0][0];
 	    /* precompute projection matrix */
-	    gl_M4_Mul(&c->matrix_model_projection,
-		      c->matrix_stack_ptr[1],
-		      c->matrix_stack_ptr[0]);
+	    c->matrix_model_projection=M4::Mul(c->matrix_stack_ptr[1], c->matrix_stack_ptr[0]);
 	    /* test to accelerate computation */
 	    c->matrix_model_projection_no_w_transform = 0;
 	    if (m[12] == 0.0 && m[13] == 0.0 && m[14] == 0.0)
@@ -250,7 +249,7 @@ void glopVertex(GLContext * c, GLParam * p)
 
     if (c->texture_2d_enabled) {
 	if (c->apply_texture_matrix) {
-	    gl_M4_MulV4(&v->tex_coord, c->matrix_stack_ptr[2], &c->current_tex_coord);
+		v->tex_coord=c->matrix_stack_ptr[2]->MulV4(c->current_tex_coord);
 	} else {
 	    v->tex_coord = c->current_tex_coord;
 	}
