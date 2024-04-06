@@ -10,9 +10,6 @@
 
 #if defined(TGL_FEATURE_8_BITS)
 
-#if TGL_FEATURE_RENDER_BITS != 16
-#error TGL_FEATURE_8_BITS is not supported for this value of TGL_FEATURE_RENDER_BITS
-#endif
 
 #define _R	5
 #define _G	9

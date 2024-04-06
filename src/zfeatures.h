@@ -14,16 +14,13 @@
  * 
  *           External  8    16    24    32
  * Internal 
- *  15                 .     .     .     .
  *  16                 Y     Y     Y     Y
- *  24                 .     Y     Y     .
- *  32                 .     Y     .     Y
  * 
  *
  * 15 bpp does not work yet (although it is easy to add it - ask me if
  * you need it).
  * 
- * Internal pixel format: see TGL_FEATURE_RENDER_BITS
+ * Internal pixel format: 16BITS
  * External pixel format: see TGL_FEATURE_xxx_BITS 
  */
 
@@ -34,10 +31,5 @@
 #define TGL_FEATURE_24_BITS        1
 #define TGL_FEATURE_32_BITS        1
 
-
-//#define TGL_FEATURE_RENDER_BITS    15
-#define TGL_FEATURE_RENDER_BITS    16
-//#define TGL_FEATURE_RENDER_BITS    24
-//#define TGL_FEATURE_RENDER_BITS    32
 
 #endif /* _tgl_features_h_ */
