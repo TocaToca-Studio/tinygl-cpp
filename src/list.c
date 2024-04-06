@@ -1,4 +1,4 @@
-#include "zgl.h"
+#include "zgl.hpp"
 
 static char *op_table_str[]=
 {

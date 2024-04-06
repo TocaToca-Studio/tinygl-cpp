@@ -24,8 +24,6 @@ the LICENSE file).
 
 - GLX like API (NGLX) to use it with NanoX in MicroWindows/NanoX.
 
-- Subset of BGLView under BeOS.
-
 - OpenGL like lightening.
 
 - Complete OpenGL selection mode handling for object picking.

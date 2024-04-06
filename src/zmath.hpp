@@ -1,35 +1,119 @@
+#ifndef __ZMATH__
+#define __ZMATH__
+
 /* Some simple mathematical functions. Don't look for some logic in
    the function names :-) */
 
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
-#include "zmath.h"
+#include <math.h> 
+
+
+/* Matrix & Vertex */
+
+struct M4 {
+	float m[4][4]; 
+	inline void Id() { 
+		int i,j;
+		for(i=0;i<4;i++)
+		for(j=0;j<4;j++) 
+		if (i==j) m[i][j]=1.0; else m[i][j]=0.0;
+	}
+	inline bool isId() {
+		int i,j;
+		for(i=0;i<4;i++)
+		for(j=0;j<4;j++) {
+			if (i==j) { 
+				if (m[i][j] != 1.0) return false;
+			} else if (m[i][j] != 0.0) return false;
+		}
+		return true;
+	}
+};
+
+struct M3 {
+	float m[3][3];
+};
+
+struct M34 {
+	 float m[3][4];
+};
+
+ 
+
+struct V3 {
+	float X,Y,Z;
+	V3() {
+		X=0;Y=0;Z=0;
+	}
+	inline float v(unsigned int index) {
+		if(index==0) return X;
+		else if(index==1) return Y;
+		else if(index==2) return Z;
+		else return 0;
+	} 
+	inline float v(unsigned int i,float value) {
+		if(i==0) X=value;
+		else if(i==1) Y=value;
+		else if(i==2) Z=value;
+	} 
+	V3(float x,float y,float z) {
+	 X=x;Y=y;Z=z;
+	}
+	inline float Len() {
+		return sqrt(X*X+Y*Y+Z*Z);
+	}
+	inline void Norm() {
+		float n;
+		n=Len();
+		if (n==0) return;
+		X/=n;
+		Y/=n;
+		Z/=n;
+	}
+} ;
+																								
+/* vector arithmetic */
+ 
+struct V4 {
+	float X,Y,Z,W;
+	inline float v(unsigned int index) {
+		if(index==0) return X;
+		else if(index==1) return Y;
+		else if(index==2) return Z;
+		else if(index==3) return W;
+		else return 0;
+	} 
+	inline float v(unsigned int i,float value) {
+		if(i==0) X=value;
+		else if(i==1) Y=value;
+		else if(i==2) Z=value;
+		else if(i==3) W=value;
+	} 
+	V4() {
+		X=0;Y=0;Z=0;W=0;
+	}
+	V4(float x,float y,float z,float w) {
+	 X=x;Y=y;Z=z;W=w;
+	}
+} ;
+struct COLOR4 {
+	float R,G,B,A;
+	COLOR4() {
+		R=0;G=0;B=0;A=0;
+	}
+	COLOR4(float r,float g,float b,float a) {
+	 R=r;G=g;B=b;A=a;
+	}
+};
+	 
+ 
 
 
 /* ******* Gestion des matrices 4x4 ****** */
 
-void gl_M4_Id(M4 *a)
-{
-	int i,j;
-	for(i=0;i<4;i++)
-	for(j=0;j<4;j++) 
-	if (i==j) a->m[i][j]=1.0; else a->m[i][j]=0.0;
-}
 
-int gl_M4_IsId(M4 *a)
-{
-	int i,j;
-	for(i=0;i<4;i++)
-    for(j=0;j<4;j++) {
-      if (i==j) { 
-        if (a->m[i][j] != 1.0) return 0;
-      } else if (a->m[i][j] != 0.0) return 0;
-    }
-  return 1;
-}
-
-void gl_M4_Mul(M4 *c,M4 *a,M4 *b)
+static inline void gl_M4_Mul(M4 *c,M4 *a,M4 *b)
 {
   int i,j,k;
   float s;
@@ -42,7 +126,7 @@ void gl_M4_Mul(M4 *c,M4 *a,M4 *b)
 }
 
 /* c=c*a */
-void gl_M4_MulLeft(M4 *c,M4 *b)
+static inline void gl_M4_MulLeft(M4 *c,M4 *b)
 {
   int i,j,k;
   float s;
@@ -60,32 +144,32 @@ void gl_M4_MulLeft(M4 *c,M4 *b)
     }
 }
 
-void gl_M4_Move(M4 *a,M4 *b)
+static inline void gl_M4_Move(M4 *a,M4 *b)
 {
 	memcpy(a,b,sizeof(M4));
 }
 
-void gl_MoveV3(V3 *a,V3 *b)
+static inline void gl_MoveV3(V3 *a,V3 *b)
 {
 	memcpy(a,b,sizeof(V3));
 }
 
 
-void gl_MulM4V3(V3 *a,M4 *b,V3 *c)
+static inline void gl_MulM4V3(V3 *a,M4 *b,V3 *c)
 {
 	 a->X=b->m[0][0]*c->X+b->m[0][1]*c->Y+b->m[0][2]*c->Z+b->m[0][3];
 	 a->Y=b->m[1][0]*c->X+b->m[1][1]*c->Y+b->m[1][2]*c->Z+b->m[1][3];
 	 a->Z=b->m[2][0]*c->X+b->m[2][1]*c->Y+b->m[2][2]*c->Z+b->m[2][3];
 }
 
-void gl_MulM3V3(V3 *a,M4 *b,V3 *c)
+static inline void gl_MulM3V3(V3 *a,M4 *b,V3 *c)
 {
 	 a->X=b->m[0][0]*c->X+b->m[0][1]*c->Y+b->m[0][2]*c->Z;
 	 a->Y=b->m[1][0]*c->X+b->m[1][1]*c->Y+b->m[1][2]*c->Z;
 	 a->Z=b->m[2][0]*c->X+b->m[2][1]*c->Y+b->m[2][2]*c->Z;
 }
 
-void gl_M4_MulV4(V4 *a,M4 *b,V4 *c)
+static inline void gl_M4_MulV4(V4 *a,M4 *b,V4 *c)
 {
 	 a->X=b->m[0][0]*c->X+b->m[0][1]*c->Y+b->m[0][2]*c->Z+b->m[0][3]*c->W;
 	 a->Y=b->m[1][0]*c->X+b->m[1][1]*c->Y+b->m[1][2]*c->Z+b->m[1][3]*c->W;
@@ -94,7 +178,7 @@ void gl_M4_MulV4(V4 *a,M4 *b,V4 *c)
 }
 	
 /* transposition of a 4x4 matrix */
-void gl_M4_Transpose(M4 *a,M4 *b)
+static inline void gl_M4_Transpose(M4 *a,M4 *b)
 {
   a->m[0][0]=b->m[0][0]; 
   a->m[0][1]=b->m[1][0]; 
@@ -118,7 +202,7 @@ void gl_M4_Transpose(M4 *a,M4 *b)
 }
 
 /* inversion of an orthogonal matrix of type Y=M.X+P */ 
-void gl_M4_InvOrtho(M4 *a,M4 b)
+static inline void gl_M4_InvOrtho(M4 *a,M4 b)
 {
 	int i,j;
 	float s;
@@ -135,12 +219,12 @@ void gl_M4_InvOrtho(M4 *a,M4 b)
 /* Inversion of a general nxn matrix.
    Note : m is destroyed */
 
-int Matrix_Inv(float *r,float *m,int n)
+static inline int Matrix_Inv(float *r,float *m,int n)
 {
 	 int i,j,k,l;
 	 float max,tmp,t;
 
-	 /* identitée dans r */
+	 /* identitï¿½e dans r */
 	 for(i=0;i<n*n;i++) r[i]=0;
 	 for(i=0;i<n;i++) r[i*n+i]=1;
 	 
@@ -195,7 +279,7 @@ int Matrix_Inv(float *r,float *m,int n)
 
 /* inversion of a 4x4 matrix */
 
-void gl_M4_Inv(M4 *a,M4 *b)
+static inline void gl_M4_Inv(M4 *a,M4 *b)
 {
   M4 tmp;
   memcpy(&tmp, b, 16*sizeof(float));
@@ -203,7 +287,7 @@ void gl_M4_Inv(M4 *a,M4 *b)
   Matrix_Inv(&a->m[0][0],&tmp.m[0][0],4);
 }
 
-void gl_M4_Rotate(M4 *a,float t,int u)
+static inline void gl_M4_Rotate(M4 *a,float t,int u)
 {
 	 float s,c;
 	 int v,w;
@@ -211,14 +295,14 @@ void gl_M4_Rotate(M4 *a,float t,int u)
 	 if ((w=v+1)>2) w=0;
 	 s=sin(t);
 	 c=cos(t);
-	 gl_M4_Id(a);
+	 a->Id();
 	 a->m[v][v]=c;	a->m[v][w]=-s;
 	 a->m[w][v]=s;	a->m[w][w]=c;
 }
 	
 
 /* inverse of a 3x3 matrix */
-void gl_M3_Inv(M3 *a,M3 *m)
+static inline void gl_M3_Inv(M3 *a,M3 *m)
 {
 	 float det;
 	 
@@ -239,37 +323,7 @@ void gl_M3_Inv(M3 *a,M3 *m)
 	 a->m[2][2] = (m->m[0][0]*m->m[1][1]-m->m[0][1]*m->m[1][0])/det;
 }
 
-																										
-/* vector arithmetic */
-
-int gl_V3_Norm(V3 *a)
-{
-	float n;
-	n=sqrt(a->X*a->X+a->Y*a->Y+a->Z*a->Z);
-	if (n==0) return 1;
-	a->X/=n;
-	a->Y/=n;
-	a->Z/=n;
-	return 0;
-}
-
-V3 gl_V3_New(float x,float y,float z)
-{
-	 V3 a;
-	 a.X=x;
-	 a.Y=y;
-	 a.Z=z;
-	 return a;
-}
-
-V4 gl_V4_New(float x,float y,float z,float w)
-{
-  V4 a;
-  a.X=x;
-  a.Y=y;
-  a.Z=z;
-  a.W=w;
-  return a;
-}
+		
 
 
+#endif  /* __ZMATH__ */

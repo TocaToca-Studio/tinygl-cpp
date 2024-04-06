@@ -1,4 +1,4 @@
-#include "zgl.h"
+#include "zgl.hpp"
 
 void glGetIntegerv(int pname,int *params)
 {

@@ -1,4 +1,4 @@
-#include "zgl.h"
+#include "zgl.hpp"
 
 void gl_print_matrix( const float *m)
 {
@@ -57,7 +57,7 @@ void glopLoadMatrix(GLContext *c,GLParam *p)
 void glopLoadIdentity(GLContext *c,GLParam *p)
 {
 
-  gl_M4_Id(c->matrix_stack_ptr[c->matrix_mode]);
+  c->matrix_stack_ptr[c->matrix_mode]->Id();
 
   gl_matrix_update(c);
 }
@@ -126,7 +126,7 @@ void glopRotate(GLContext *c,GLParam *p)
 
   switch(dir_code) {
   case 0:
-    gl_M4_Id(&m);
+    m.Id();
     break;
   case 4:
     if (u[0] < 0) angle=-angle;

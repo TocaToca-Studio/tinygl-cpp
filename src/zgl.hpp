@@ -8,7 +8,7 @@
 #include <string.h>
 #include <GL/gl.h>
 #include "zbuffer.h"
-#include "zmath.h"
+#include "zmath.hpp"
 #include "zfeatures.h"
 
 #define DEBUG
@@ -49,17 +49,17 @@ enum {
 #define TGL_OFFSET_LINE    0x2
 #define TGL_OFFSET_POINT   0x4
 
-typedef struct GLSpecBuf {
+struct GLSpecBuf {
   int shininess_i;
   int last_used;
   float buf[SPECULAR_BUFFER_SIZE+1];
   struct GLSpecBuf *next;
-} GLSpecBuf;
+};
 
-typedef struct GLLight {
-  V4 ambient;
-  V4 diffuse;
-  V4 specular;
+struct GLLight {
+  COLOR4 ambient;
+  COLOR4 diffuse;
+  COLOR4 specular;
   V4 position;	
   V3 spot_direction;
   float spot_exponent;
@@ -72,27 +72,27 @@ typedef struct GLLight {
   /* we use a linked list to know which are the enabled lights */
   int enabled;
   struct GLLight *next,*prev;
-} GLLight;
+};
 
-typedef struct GLMaterial {
-  V4 emission;
-  V4 ambient;
-  V4 diffuse;
-  V4 specular;
+struct GLMaterial {
+  COLOR4 emission;
+  COLOR4 ambient;
+  COLOR4 diffuse;
+  COLOR4 specular;
   float shininess;
 
   /* computed values */
   int shininess_i;
   int do_specular;  
-} GLMaterial;
+};
 
 
-typedef struct GLViewport {
+struct GLViewport {
   int xmin,ymin,xsize,ysize;
   V3 scale;
   V3 trans;
   int updated;
-} GLViewport;
+};
 
 typedef union {
   int op;
@@ -102,52 +102,53 @@ typedef union {
   void *p;
 } GLParam;
 
-typedef struct GLParamBuffer {
+  
+struct GLParamBuffer {
   GLParam ops[OP_BUFFER_MAX_SIZE];
   struct GLParamBuffer *next;
-} GLParamBuffer;
+};
 
-typedef struct GLList {
+struct GLList {
   GLParamBuffer *first_op_buffer;
   /* TODO: extensions for an hash table or a better allocating scheme */
-} GLList;
+};
 
-typedef struct GLVertex {
+struct GLVertex {
   int edge_flag;
   V3 normal;
   V4 coord;
   V4 tex_coord;
-  V4 color;
+  COLOR4 color;
   
   /* computed values */
   V4 ec;                /* eye coordinates */
   V4 pc;                /* coordinates in the normalized volume */
   int clip_code;        /* clip code */
   ZBufferPoint zp;      /* integer coordinates for the rasterization */
-} GLVertex;
+};
 
-typedef struct GLImage {
+struct GLImage {
   void *pixmap;
   int xsize,ysize;
-} GLImage;
+};
 
 /* textures */
 
 #define TEXTURE_HASH_TABLE_SIZE 256
 
-typedef struct GLTexture {
+struct GLTexture {
   GLImage images[MAX_TEXTURE_LEVELS];
   int handle;
   struct GLTexture *next,*prev;
-} GLTexture;
+};
 
 
 /* shared state */
 
-typedef struct GLSharedState {
+struct GLSharedState {
   GLList **lists;
   GLTexture **texture_hash_table;
-} GLSharedState;
+};
 
 struct GLContext;
 
@@ -156,14 +157,14 @@ typedef void (*gl_draw_triangle_func)(struct GLContext *c,
 
 /* display context */
 
-typedef struct GLContext {
+struct GLContext {
   /* Z buffer */
   ZBuffer *zb;
 
   /* lights */
   GLLight lights[MAX_LIGHTS];
   GLLight *first_light;
-  V4 ambient_light_model;
+  COLOR4 ambient_light_model;
   int local_light_model;
   int lighting_enabled;
   int light_model_two_side;
@@ -227,10 +228,10 @@ typedef struct GLContext {
 
   /* clear */
   float clear_depth;
-  V4 clear_color;
+  COLOR4 clear_color;
 
   /* current vertex state */
-  V4 current_color;
+  COLOR4 current_color;
   unsigned int longcurrent_color[3]; /* precomputed integer color */
   V4 current_normal;
   V4 current_tex_coord;
@@ -275,7 +276,7 @@ typedef struct GLContext {
 
   /* depth test */
   int depth_test;
-} GLContext;
+};
 
 extern GLContext *gl_ctx;
 
@@ -329,23 +330,7 @@ void gl_fatal_error(char *format, ...);
 /* specular buffer "api" */
 GLSpecBuf *specbuf_get_buffer(GLContext *c, const int shininess_i, 
                               const float shininess);
-
-#ifdef __BEOS__
-void dprintf(const char *, ...);
-
-#else /* !BEOS */
-
-#ifdef DEBUG
-
-#define dprintf(format, args...)  \
-  fprintf(stderr,"In '%s': " format "\n",__FUNCTION__, ##args);
-
-#else
-
-#define dprintf(format, args...)
-
-#endif
-#endif /* !BEOS */
+ 
 
 /* glopXXX functions */
 

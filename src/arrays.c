@@ -1,4 +1,4 @@
-#include "zgl.h"
+#include "zgl.hpp"
 #include <assert.h>
 #include <stdio.h>
 

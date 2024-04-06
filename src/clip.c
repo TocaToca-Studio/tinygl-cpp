@@ -1,4 +1,4 @@
-#include "zgl.h"
+#include "zgl.hpp"
 
 /* fill triangle profile */
 /* #define PROFILE */
@@ -24,11 +24,11 @@ void gl_transform_to_viewport(GLContext *c,GLVertex *v)
                    + c->viewport.trans.Z );
   /* color */
   if (c->lighting_enabled) {
-      v->zp.r=(int)(v->color.v[0] * (ZB_POINT_RED_MAX - ZB_POINT_RED_MIN) 
+      v->zp.r=(int)(v->color.R * (ZB_POINT_RED_MAX - ZB_POINT_RED_MIN) 
                     + ZB_POINT_RED_MIN);
-      v->zp.g=(int)(v->color.v[1] * (ZB_POINT_GREEN_MAX - ZB_POINT_GREEN_MIN) 
+      v->zp.g=(int)(v->color.G * (ZB_POINT_GREEN_MAX - ZB_POINT_GREEN_MIN) 
                     + ZB_POINT_GREEN_MIN);
-      v->zp.b=(int)(v->color.v[2] * (ZB_POINT_BLUE_MAX - ZB_POINT_BLUE_MIN) 
+      v->zp.b=(int)(v->color.B * (ZB_POINT_BLUE_MAX - ZB_POINT_BLUE_MIN) 
                     + ZB_POINT_BLUE_MIN);
   } else {
       /* no need to convert to integer if no lighting : take current color */
@@ -82,9 +82,9 @@ static inline void interpolate(GLVertex *q,GLVertex *p0,GLVertex *p1,float t)
   q->pc.Z=p0->pc.Z+(p1->pc.Z-p0->pc.Z)*t;
   q->pc.W=p0->pc.W+(p1->pc.W-p0->pc.W)*t;
 
-  q->color.v[0]=p0->color.v[0] + (p1->color.v[0]-p0->color.v[0])*t;
-  q->color.v[1]=p0->color.v[1] + (p1->color.v[1]-p0->color.v[1])*t;
-  q->color.v[2]=p0->color.v[2] + (p1->color.v[2]-p0->color.v[2])*t;
+  q->color.R=p0->color.R + (p1->color.R-p0->color.R)*t;
+  q->color.G=p0->color.G + (p1->color.G-p0->color.G)*t;
+  q->color.B=p0->color.B + (p1->color.B-p0->color.B)*t;
 }
 
 /*
@@ -216,13 +216,13 @@ static inline void updateTmp(GLContext *c,
 			     GLVertex *q,GLVertex *p0,GLVertex *p1,float t)
 {
   if (c->current_shade_model == GL_SMOOTH) {
-    q->color.v[0]=p0->color.v[0] + (p1->color.v[0]-p0->color.v[0])*t;
-    q->color.v[1]=p0->color.v[1] + (p1->color.v[1]-p0->color.v[1])*t;
-    q->color.v[2]=p0->color.v[2] + (p1->color.v[2]-p0->color.v[2])*t;
+    q->color.R=p0->color.R + (p1->color.R-p0->color.R)*t;
+    q->color.G=p0->color.G + (p1->color.G-p0->color.G)*t;
+    q->color.B=p0->color.B + (p1->color.B-p0->color.B)*t;
   } else {
-    q->color.v[0]=p0->color.v[0];
-    q->color.v[1]=p0->color.v[1];
-    q->color.v[2]=p0->color.v[2];
+    q->color.R=p0->color.R;
+    q->color.G=p0->color.G;
+    q->color.B=p0->color.B;
   }
 
   if (c->texture_2d_enabled) {

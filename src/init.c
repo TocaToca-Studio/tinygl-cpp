@@ -1,4 +1,4 @@
-#include "zgl.h"
+#include "zgl.hpp"
 
 GLContext *gl_ctx;
 
@@ -64,13 +64,13 @@ void glInit(void *zbuffer1)
   /* lights */
   for(i=0;i<MAX_LIGHTS;i++) {
     GLLight *l=&c->lights[i];
-    l->ambient=gl_V4_New(0,0,0,1);
-    l->diffuse=gl_V4_New(1,1,1,1);
-    l->specular=gl_V4_New(1,1,1,1);
-    l->position=gl_V4_New(0,0,1,0);
-    l->norm_position=gl_V3_New(0,0,1);
-    l->spot_direction=gl_V3_New(0,0,-1);
-    l->norm_spot_direction=gl_V3_New(0,0,-1);
+    l->ambient=COLOR4(0,0,0,1);
+    l->diffuse=COLOR4(1,1,1,1);
+    l->specular=COLOR4(1,1,1,1);
+    l->position=V4(0,0,1,0);
+    l->norm_position=V3(0,0,1);
+    l->spot_direction=V3(0,0,-1);
+    l->norm_spot_direction=V3(0,0,-1);
     l->spot_exponent=0;
     l->spot_cutoff=180;
     l->attenuation[0]=1;
@@ -79,7 +79,7 @@ void glInit(void *zbuffer1)
     l->enabled=0;
   }
   c->first_light=NULL;
-  c->ambient_light_model=gl_V4_New(0.2,0.2,0.2,1);
+  c->ambient_light_model=COLOR4(0.2,0.2,0.2,1);
   c->local_light_model=0;
   c->lighting_enabled=0;
   c->light_model_two_side = 0;
@@ -87,10 +87,10 @@ void glInit(void *zbuffer1)
   /* default materials */
   for(i=0;i<2;i++) {
     GLMaterial *m=&c->materials[i];
-    m->emission=gl_V4_New(0,0,0,1);
-    m->ambient=gl_V4_New(0.2,0.2,0.2,1);
-    m->diffuse=gl_V4_New(0.8,0.8,0.8,1);
-    m->specular=gl_V4_New(0,0,0,1);
+    m->emission=COLOR4(0,0,0,1);
+    m->ambient=COLOR4(0.2,0.2,0.2,1);
+    m->diffuse=COLOR4(0.8,0.8,0.8,1);
+    m->specular=COLOR4(0,0,0,1);
     m->shininess=0;
   }
   c->current_color_material_mode=GL_FRONT_AND_BACK;
@@ -101,10 +101,10 @@ void glInit(void *zbuffer1)
   glInitTextures(c);
 
   /* default state */
-  c->current_color.X=1.0;
-  c->current_color.Y=1.0;
-  c->current_color.Z=1.0;
-  c->current_color.W=1.0;
+  c->current_color.R=1.0;
+  c->current_color.G=1.0;
+  c->current_color.B=1.0;
+  c->current_color.A=1.0;
   c->longcurrent_color[0] = 65535;
   c->longcurrent_color[1] = 65535;
   c->longcurrent_color[2] = 65535;
@@ -130,10 +130,10 @@ void glInit(void *zbuffer1)
   c->cull_face_enabled=0;
   
   /* clear */
-  c->clear_color.v[0]=0;
-  c->clear_color.v[1]=0;
-  c->clear_color.v[2]=0;
-  c->clear_color.v[3]=0;
+  c->clear_color.R=0;
+  c->clear_color.G=0;
+  c->clear_color.B=0;
+  c->clear_color.A=0;
   c->clear_depth=0;
 
   /* selection */

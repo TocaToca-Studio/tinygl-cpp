@@ -1,4 +1,4 @@
-#include "zgl.h"
+#include "zgl.hpp"
 #include "msghandling.h"
 #include <math.h>
 #include <stdlib.h>

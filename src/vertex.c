@@ -1,4 +1,4 @@
-#include "zgl.h"
+#include "zgl.hpp"
 
 void glopNormal(GLContext * c, GLParam * p)
 {
@@ -30,10 +30,10 @@ void glopEdgeFlag(GLContext * c, GLParam * p)
 void glopColor(GLContext * c, GLParam * p)
 {
 
-    c->current_color.X = p[1].f;
-    c->current_color.Y = p[2].f;
-    c->current_color.Z = p[3].f;
-    c->current_color.W = p[4].f;
+    c->current_color.R = p[1].f;
+    c->current_color.G = p[2].f;
+    c->current_color.B = p[3].f;
+    c->current_color.A = p[4].f;
     c->longcurrent_color[0] = p[5].ui;
     c->longcurrent_color[1] = p[6].ui;
     c->longcurrent_color[2] = p[7].ui;
@@ -100,7 +100,7 @@ void glopBegin(GLContext * c, GLParam * p)
 	}
 
 	/* test if the texture matrix is not Identity */
-	c->apply_texture_matrix = !gl_M4_IsId(c->matrix_stack_ptr[2]);
+	c->apply_texture_matrix = !(c->matrix_stack_ptr[2]->isId());
 
 	c->matrix_model_projection_updated = 0;
     }
@@ -179,7 +179,7 @@ static inline void gl_vertex_transform(GLContext * c, GLVertex * v)
 	v->normal.Z = (n->X * m[8] + n->Y * m[9] + n->Z * m[10]);
 
 	if (c->normalize_enabled) {
-	    gl_V3_Norm(&v->normal);
+	    v->normal.Norm();
 	}
     } else {
 	/* no eye coordinates needed, no normal */

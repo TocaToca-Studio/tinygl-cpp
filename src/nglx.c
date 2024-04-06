@@ -2,7 +2,7 @@
 #include <GL/gl.h>
 #include <GL/nglx.h>
 #include <microwin/nano-X.h>
-#include "zgl.h"
+#include "zgl.hpp"
 
 typedef struct {
     GLContext *gl_context;

@@ -1,6 +1,6 @@
 #include <GL/oscontext.h>
 #include "zbuffer.h"
-#include "zgl.h"
+#include "zgl.hpp"
 #include <GL/gl.h>
 #include <stdlib.h>
 #include <assert.h>

@@ -1,4 +1,4 @@
-#include "zgl.h"
+#include "zgl.hpp"
 #include <stdio.h>
 /* glVertex */
 
