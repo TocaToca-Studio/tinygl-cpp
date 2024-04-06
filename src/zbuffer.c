@@ -53,7 +53,7 @@ ZBuffer *ZB_open(int xsize, int ysize, int mode,
 	goto error;
 
     if (frame_buffer == NULL) {
-	zb->pbuf = (short unsigned int*) gl_malloc(zb->ysize * zb->linesize);
+	zb->pbuf = (PIXEL*) gl_malloc(zb->ysize * zb->linesize);
 	if (zb->pbuf == NULL) {
 	    gl_free(zb->zbuf);
 	    goto error;
@@ -61,7 +61,7 @@ ZBuffer *ZB_open(int xsize, int ysize, int mode,
 	zb->frame_buffer_allocated = 1;
     } else {
 	zb->frame_buffer_allocated = 0;
-	zb->pbuf =(short unsigned int*) frame_buffer;
+	zb->pbuf =(PIXEL*) frame_buffer;
     }
 
     zb->current_texture = NULL;
