@@ -1,6 +1,8 @@
 #ifndef _tgl_features_h_
 #define _tgl_features_h_
 
+#include "msghandling.hpp"
+
 /* It is possible to enable/disable (compile time) features in this
    header file. */
 
@@ -30,6 +32,41 @@
 #define TGL_FEATURE_8_BITS         1
 #define TGL_FEATURE_24_BITS        1
 #define TGL_FEATURE_32_BITS        1
+
+/*
+ * Memory allocator for TinyGL
+ */
+
+#include <stdlib.h>
+/* modify these functions so that they suit your needs */
+
+static inline void gl_free(void *p) {
+    free(p);
+}
+
+static inline void *gl_malloc(int size) {
+    return malloc(size);
+}
+
+static inline void *gl_zalloc(int size) {
+    return calloc(1, size);
+}
+
+#include <stdarg.h> 
+
+static inline void gl_fatal_error(char *format, ...) {
+  va_list ap;
+
+  va_start(ap,format);
+
+  fprintf(stderr,"TinyGL: fatal error: ");
+  vfprintf(stderr,format,ap);
+  fprintf(stderr,"\n");
+  exit(1);
+
+  va_end(ap);
+}
+
 
 
 #endif /* _tgl_features_h_ */

@@ -1,5 +1,5 @@
 #include "zgl.hpp"
-#include "msghandling.h"
+#include "msghandling.hpp"
 
 void glopMaterial(GLContext *c,GLParam *p)
 {

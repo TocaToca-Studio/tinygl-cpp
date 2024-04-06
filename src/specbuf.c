@@ -1,5 +1,5 @@
 #include "zgl.hpp"
-#include "msghandling.h"
+#include "msghandling.hpp"
 #include <math.h>
 #include <stdlib.h>
 
