@@ -16,11 +16,3 @@ This repository contains a refactored version of the TinyGL library, originally 
 2. **Object-Oriented Approach without Inheritance:** Although inspired by object-oriented programming, composition has been favored over inheritance. Functionalities have been grouped into structs, promoting a cohesive and flexible organization of the code.
 
 3. **Preservation of the Original Logic:** While the syntax and structure of the code have been modified, the underlying logic of the TinyGL library has been kept intact. This ensures that users familiar with the original version can easily migrate to this refactored version.
-
-## Additional Resources
-
-In addition to the refactoring of the library, this repository may also include detailed documentation, usage examples, and unit tests to ensure the quality and robustness of the code.
-
-## Contributions
-
-Contributions are welcome! If you have ideas to further improve this version of the TinyGL library, feel free to submit pull requests or open issues in the repository.
