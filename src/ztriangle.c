@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "zbuffer.h"
+#include "zbuffer.hpp"
 
 #define ZCMP(z,zpix) ((z) >= (zpix))
 
@@ -68,9 +68,9 @@ int _drgbdx;
 
 #define DRAW_LINE()							   \
 {									   \
-  register unsigned short *pz;					   \
+  register uint16_t *pz;					   \
   register PIXEL *pp;					   \
-  register unsigned int tmp,z,zz,rgb,drgbdx;				   \
+  register uint32_t tmp,z,zz,rgb,drgbdx;				   \
   register int n;							   \
   n=(x2 >> 16) - x1;							   \
   pp=pp1+x1;								   \
@@ -178,9 +178,9 @@ void ZB_fillTriangleMappingPerspective(ZBuffer *zb,
 
 #define DRAW_LINE()				\
 {						\
-  register unsigned short *pz;		\
+  register uint16_t *pz;		\
   register PIXEL *pp;		\
-  register unsigned int s,t,z,zz;	\
+  register uint32_t s,t,z,zz;	\
   register int n,dsdx,dtdx;		\
   float sz,tz,fz,zinv; \
   n=(x2>>16)-x1;                             \

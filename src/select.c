@@ -39,7 +39,7 @@ int glRenderMode(int mode)
   return result;
 }
 
-void glSelectBuffer(int size,unsigned int *buf)
+void glSelectBuffer(int size,uint32_t *buf)
 {
   GLContext *c=gl_get_context();
 
@@ -85,9 +85,9 @@ void glopLoadName(GLContext *c,GLParam *p)
   }
 }
 
-void gl_add_select(GLContext *c,unsigned int zmin,unsigned int zmax)
+void gl_add_select(GLContext *c,uint32_t zmin,uint32_t zmax)
 {
-  unsigned int *ptr;
+  uint32_t *ptr;
   int n,i;
 
   if (!c->select_overflow) {

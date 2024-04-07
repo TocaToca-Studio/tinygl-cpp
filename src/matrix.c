@@ -35,7 +35,7 @@ void glopMatrixMode(GLContext *c,GLParam *p)
 
 void glopLoadMatrix(GLContext *c,GLParam *p)
 {
-  M4 *m;
+  mat4_t *m;
   int i;
   
   GLParam *q;
@@ -64,7 +64,7 @@ void glopLoadIdentity(GLContext *c,GLParam *p)
 
 void glopMultMatrix(GLContext *c,GLParam *p)
 {
-  M4 m;
+  mat4_t m;
   int i;
 
   GLParam *q;
@@ -87,7 +87,7 @@ void glopMultMatrix(GLContext *c,GLParam *p)
 void glopPushMatrix(GLContext *c,GLParam *p)
 {
   int n=c->matrix_mode;
-  M4 *m;
+  mat4_t *m;
 
   assert( (c->matrix_stack_ptr[n] - c->matrix_stack[n] + 1 )
 	   < c->matrix_stack_depth_max[n] );
@@ -111,7 +111,7 @@ void glopPopMatrix(GLContext *c,GLParam *p)
 
 void glopRotate(GLContext *c,GLParam *p)
 {
-  M4 m;
+  mat4_t m;
   float u[3];
   float angle;
   int dir_code;
@@ -211,14 +211,14 @@ void glopTranslate(GLContext *c,GLParam *p)
 
 void glopFrustum(GLContext *c,GLParam *p)
 { 
-  M4 m;
+  mat4_t m;
   float left=p[1].f;
   float right=p[2].f;
   float bottom=p[3].f;
   float top=p[4].f;
   float near=p[5].f;
   float farp=p[6].f; 
-  m=M4::Frustrum(left,right,bottom,top,near,farp);
+  m=mat4_t::Frustrum(left,right,bottom,top,near,farp);
   c->matrix_stack_ptr[c->matrix_mode]->Mult(&m);
 
   gl_matrix_update(c);

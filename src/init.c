@@ -64,13 +64,13 @@ void glInit(void *zbuffer1)
   /* lights */
   for(i=0;i<MAX_LIGHTS;i++) {
     GLLight *l=&c->lights[i];
-    l->ambient=COLOR4(0,0,0,1);
-    l->diffuse=COLOR4(1,1,1,1);
-    l->specular=COLOR4(1,1,1,1);
-    l->position=V4(0,0,1,0);
-    l->norm_position=V3(0,0,1);
-    l->spot_direction=V3(0,0,-1);
-    l->norm_spot_direction=V3(0,0,-1);
+    l->ambient=rgba_t(0,0,0,1);
+    l->diffuse=rgba_t(1,1,1,1);
+    l->specular=rgba_t(1,1,1,1);
+    l->position=vec4_t(0,0,1,0);
+    l->norm_position=vec3_t(0,0,1);
+    l->spot_direction=vec3_t(0,0,-1);
+    l->norm_spot_direction=vec3_t(0,0,-1);
     l->spot_exponent=0;
     l->spot_cutoff=180;
     l->attenuation[0]=1;
@@ -79,7 +79,7 @@ void glInit(void *zbuffer1)
     l->enabled=0;
   }
   c->first_light=NULL;
-  c->ambient_light_model=COLOR4(0.2,0.2,0.2,1);
+  c->ambient_light_model=rgba_t(0.2,0.2,0.2,1);
   c->local_light_model=0;
   c->lighting_enabled=0;
   c->light_model_two_side = 0;
@@ -87,10 +87,10 @@ void glInit(void *zbuffer1)
   /* default materials */
   for(i=0;i<2;i++) {
     GLMaterial *m=&c->materials[i];
-    m->emission=COLOR4(0,0,0,1);
-    m->ambient=COLOR4(0.2,0.2,0.2,1);
-    m->diffuse=COLOR4(0.8,0.8,0.8,1);
-    m->specular=COLOR4(0,0,0,1);
+    m->emission=rgba_t(0,0,0,1);
+    m->ambient=rgba_t(0.2,0.2,0.2,1);
+    m->diffuse=rgba_t(0.8,0.8,0.8,1);
+    m->specular=rgba_t(0,0,0,1);
     m->shininess=0;
   }
   c->current_color_material_mode=GL_FRONT_AND_BACK;
@@ -149,7 +149,7 @@ void glInit(void *zbuffer1)
   c->matrix_stack_depth_max[2]=MAX_TEXTURE_STACK_DEPTH;
 
   for(i=0;i<3;i++) {
-    c->matrix_stack[i]=(M4*)gl_zalloc(c->matrix_stack_depth_max[i] * sizeof(M4));
+    c->matrix_stack[i]=(mat4_t*)gl_zalloc(c->matrix_stack_depth_max[i] * sizeof(mat4_t));
     c->matrix_stack_ptr[i]=c->matrix_stack[i];
   }
 

@@ -7,7 +7,7 @@
 #include <assert.h>
 #include <string.h>
 #include <GL/gl.h>
-#include "zbuffer.h"
+#include "zbuffer.hpp"
 #include "zmath.hpp"
 #include "zfeatures.h"
 
@@ -57,28 +57,28 @@ struct GLSpecBuf {
 };
 
 struct GLLight {
-  COLOR4 ambient;
-  COLOR4 diffuse;
-  COLOR4 specular;
-  V4 position;	
-  V3 spot_direction;
+  rgba_t ambient;
+  rgba_t diffuse;
+  rgba_t specular;
+  vec4_t position;	
+  vec3_t spot_direction;
   float spot_exponent;
   float spot_cutoff;
   float attenuation[3];
   /* precomputed values */
   float cos_spot_cutoff;
-  V3 norm_spot_direction;
-  V3 norm_position;
+  vec3_t norm_spot_direction;
+  vec3_t norm_position;
   /* we use a linked list to know which are the enabled lights */
   int enabled;
   struct GLLight *next,*prev;
 };
 
 struct GLMaterial {
-  COLOR4 emission;
-  COLOR4 ambient;
-  COLOR4 diffuse;
-  COLOR4 specular;
+  rgba_t emission;
+  rgba_t ambient;
+  rgba_t diffuse;
+  rgba_t specular;
   float shininess;
 
   /* computed values */
@@ -89,8 +89,8 @@ struct GLMaterial {
 
 struct GLViewport {
   int xmin,ymin,xsize,ysize;
-  V3 scale;
-  V3 trans;
+  vec3_t scale;
+  vec3_t trans;
   int updated;
 };
 
@@ -98,7 +98,7 @@ typedef union {
   int op;
   float f;
   int i;
-  unsigned int ui;
+  uint32_t ui;
   void *p;
 } GLParam;
 
@@ -115,14 +115,14 @@ struct GLList {
 
 struct GLVertex {
   int edge_flag;
-  V3 normal;
-  V4 coord;
-  V4 tex_coord;
-  COLOR4 color;
+  vec3_t normal;
+  vec4_t coord;
+  vec4_t tex_coord;
+  rgba_t color;
   
   /* computed values */
-  V4 ec;                /* eye coordinates */
-  V4 pc;                /* coordinates in the normalized volume */
+  vec4_t ec;                /* eye coordinates */
+  vec4_t pc;                /* coordinates in the normalized volume */
   int clip_code;        /* clip code */
   ZBufferPoint zp;      /* integer coordinates for the rasterization */
 };
@@ -164,7 +164,7 @@ struct GLContext {
   /* lights */
   GLLight lights[MAX_LIGHTS];
   GLLight *first_light;
-  COLOR4 ambient_light_model;
+  rgba_t ambient_light_model;
   int local_light_model;
   int lighting_enabled;
   int light_model_two_side;
@@ -190,12 +190,12 @@ struct GLContext {
   /* matrix */
 
   int matrix_mode;
-  M4 *matrix_stack[3];
-  M4 *matrix_stack_ptr[3];
+  mat4_t *matrix_stack[3];
+  mat4_t *matrix_stack_ptr[3];
   int matrix_stack_depth_max[3];
 
-  M4 matrix_model_view_inv;
-  M4 matrix_model_projection;
+  mat4_t matrix_model_view_inv;
+  mat4_t matrix_model_projection;
   int matrix_model_projection_updated;
   int matrix_model_projection_no_w_transform; 
   int apply_texture_matrix;
@@ -216,25 +216,25 @@ struct GLContext {
 
   /* selection */
   int render_mode;
-  unsigned int *select_buffer;
+  uint32_t *select_buffer;
   int select_size;
-  unsigned int *select_ptr,*select_hit;
+  uint32_t *select_ptr,*select_hit;
   int select_overflow;
   int select_hits;
 
   /* names */
-  unsigned int name_stack[MAX_NAME_STACK_DEPTH];
+  uint32_t name_stack[MAX_NAME_STACK_DEPTH];
   int name_stack_size;
 
   /* clear */
   float clear_depth;
-  COLOR4 clear_color;
+  rgba_t clear_color;
 
   /* current vertex state */
-  COLOR4 current_color;
-  unsigned int longcurrent_color[3]; /* precomputed integer color */
-  V4 current_normal;
-  V4 current_tex_coord;
+  rgba_t current_color;
+  uint32_t longcurrent_color[3]; /* precomputed integer color */
+  vec4_t current_normal;
+  vec4_t current_tex_coord;
   int current_edge_flag;
 
   /* glBegin / glEnd */
@@ -304,7 +304,7 @@ void glopLoadIdentity(GLContext *c,GLParam *p);
 void glopTranslate(GLContext *c,GLParam *p);*/
 
 /* light.c */
-void gl_add_select(GLContext *c,unsigned int zmin,unsigned int zmax);
+void gl_add_select(GLContext *c,uint32_t zmin,uint32_t zmax);
 void gl_enable_disable_light(GLContext *c,int light,int v);
 void gl_shade_vertex(GLContext *c,GLVertex *v);
 
@@ -313,14 +313,14 @@ void glEndTextures(GLContext *c);
 GLTexture *alloc_texture(GLContext *c,int h);
 
 /* image_util.c */
-void gl_convertRGB_to_5R6G5B(unsigned short *pixmap,unsigned char *rgb,
+void gl_convertRGB_to_5R6G5B(uint16_t *pixmap,uint8_t *rgb,
                              int xsize,int ysize);
-void gl_convertRGB_to_8A8R8G8B(unsigned int *pixmap, unsigned char *rgb,
+void gl_convertRGB_to_8A8R8G8B(uint32_t *pixmap, uint8_t *rgb,
                                int xsize, int ysize);
-void gl_resizeImage(unsigned char *dest,int xsize_dest,int ysize_dest,
-                    unsigned char *src,int xsize_src,int ysize_src);
-void gl_resizeImageNoInterpolate(unsigned char *dest,int xsize_dest,int ysize_dest,
-                                 unsigned char *src,int xsize_src,int ysize_src);
+void gl_resizeImage(uint8_t *dest,int xsize_dest,int ysize_dest,
+                    uint8_t *src,int xsize_src,int ysize_src);
+void gl_resizeImageNoInterpolate(uint8_t *dest,int xsize_dest,int ysize_dest,
+                                 uint8_t *src,int xsize_src,int ysize_src);
 
 GLContext *gl_get_context(void);
 

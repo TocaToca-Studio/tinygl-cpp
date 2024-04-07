@@ -3,12 +3,12 @@
  
 #include <math.h> 
  
-struct V3 {
+struct vec3_t {
 	float X,Y,Z;
-	inline V3() {
+	inline vec3_t() {
 		X=0;Y=0;Z=0;
 	} 
-	inline V3(float x,float y,float z) {
+	inline vec3_t(float x,float y,float z) {
 	 X=x;Y=y;Z=z;
 	}
 	inline float Len() {
@@ -26,12 +26,12 @@ struct V3 {
 																								
 /* vector arithmetic */
  
-struct V4 {
+struct vec4_t {
 	float X,Y,Z,W; 
-	inline V4() {
+	inline vec4_t() {
 		X=0;Y=0;Z=0;W=0;
 	}
-	inline V4(float x,float y,float z,float w) {
+	inline vec4_t(float x,float y,float z,float w) {
 	 X=x;Y=y;Z=z;W=w;
 	}
 };
@@ -98,7 +98,7 @@ static inline int Matrix_Inv(float *r,float *m,int n) {
 
 /* Matrix & Vertex */
 
-struct M4 {
+struct mat4_t {
 	float m[4][4]; 
 	
 	inline void Id() { 
@@ -128,8 +128,8 @@ struct M4 {
 		m[v][v]=c;	m[v][w]=-s;
 		m[w][v]=s;	m[w][w]=c;
 	}
-	inline V4 MulV4(const V4 &c) {
-		V4 a; 
+	inline vec4_t Mulvec4_t(const vec4_t &c) {
+		vec4_t a; 
 		a.X=m[0][0]*c.X+m[0][1]*c.Y+m[0][2]*c.Z+m[0][3]*c.W;
 		a.Y=m[1][0]*c.X+m[1][1]*c.Y+m[1][2]*c.Z+m[1][3]*c.W;
 		a.Z=m[2][0]*c.X+m[2][1]*c.Y+m[2][2]*c.Z+m[2][3]*c.W;
@@ -138,8 +138,8 @@ struct M4 {
 	}
 	/* inversion of a 4x4 matrix */
 
-	inline void Inv(M4 *b){
-		M4 tmp=*b;
+	inline void Inv(mat4_t *b){
+		mat4_t tmp=*b;
 		/*tmp=*b;*/
 		Matrix_Inv(&m[0][0],&tmp.m[0][0],4);
 	}
@@ -149,8 +149,8 @@ struct M4 {
 
 
 
-	static inline M4 Mul(M4 *a,M4 *b) {
-		M4 c;
+	static inline mat4_t Mul(mat4_t *a,mat4_t *b) {
+		mat4_t c;
 		int i,j,k;
 		float s;
 		for(i=0;i<4;i++) {
@@ -164,10 +164,10 @@ struct M4 {
 	}
 
 	/* c=c*a */
-	static inline void MulLeft(M4 *c,M4 *b) {
+	static inline void MulLeft(mat4_t *c,mat4_t *b) {
 		int i,j,k;
 		float s;
-		M4 a=*c;
+		mat4_t a=*c;
 
 		for(i=0;i<4;i++) {
 			for(j=0;j<4;j++) {
@@ -177,12 +177,12 @@ struct M4 {
 			}
 		}
 	}
-	inline void Mult(M4 *b) {
+	inline void Mult(mat4_t *b) {
 		MulLeft(this,b);
 	}
 
 	//* transposition of a 4x4 matrix */
-	inline void Transpose(M4 *b) {
+	inline void Transpose(mat4_t *b) {
 		m[0][0]=b->m[0][0]; 
 		m[0][1]=b->m[1][0]; 
 		m[0][2]=b->m[2][0]; 
@@ -207,10 +207,10 @@ struct M4 {
 		Transpose(this);
 	}
 
-	static inline M4 Frustrum(float left,float right,float bottom,float top,float near,float farp) {
+	static inline mat4_t Frustrum(float left,float right,float bottom,float top,float near,float farp) {
 		float x,y,A,B,C,D;
 		float *r;
-		M4 m;
+		mat4_t m;
 		x = (2.0*near) / (right-left);
 		y = (2.0*near) / (top-bottom);
 		A = (right+left) / (right-left);
@@ -256,12 +256,12 @@ struct M3 {
 	}
 };
  
-struct COLOR4 {
+struct rgba_t {
 	float R,G,B,A;
-	COLOR4() {
+	rgba_t() {
 		R=0;G=0;B=0;A=0;
 	}
-	COLOR4(float r,float g,float b,float a) {
+	rgba_t(float r,float g,float b,float a) {
 	 R=r;G=g;B=b;A=a;
 	}
 }; 

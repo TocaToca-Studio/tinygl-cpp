@@ -18,24 +18,24 @@ void glopMaterial(GLContext *c,GLParam *p)
   
   switch(type) {
   case GL_EMISSION: 
-      m->emission=COLOR4(p[3+0].f,p[3+1].f,p[3+2].f,p[3+3].f);
+      m->emission=rgba_t(p[3+0].f,p[3+1].f,p[3+2].f,p[3+3].f);
     break;
   case GL_AMBIENT:
-      m->ambient=COLOR4(p[3+0].f,p[3+1].f,p[3+2].f,p[3+3].f);
+      m->ambient=rgba_t(p[3+0].f,p[3+1].f,p[3+2].f,p[3+3].f);
     break;
   case GL_DIFFUSE:
-      m->diffuse=COLOR4(p[3+0].f,p[3+1].f,p[3+2].f,p[3+3].f);
+      m->diffuse=rgba_t(p[3+0].f,p[3+1].f,p[3+2].f,p[3+3].f);
     break;
   case GL_SPECULAR:
-      m->specular=COLOR4(p[3+0].f,p[3+1].f,p[3+2].f,p[3+3].f);
+      m->specular=rgba_t(p[3+0].f,p[3+1].f,p[3+2].f,p[3+3].f);
     break;
   case GL_SHININESS:
     m->shininess=p[3].f;
     m->shininess_i = (m->shininess/128.0f)*SPECULAR_BUFFER_RESOLUTION;
     break;
   case GL_AMBIENT_AND_DIFFUSE:  
-    m->diffuse=COLOR4(p[3+0].f,p[3+1].f,p[3+2].f,p[3+3].f); 
-    m->ambient=COLOR4(p[3+0].f,p[3+1].f,p[3+2].f,p[3+3].f);
+    m->diffuse=rgba_t(p[3+0].f,p[3+1].f,p[3+2].f,p[3+3].f); 
+    m->ambient=rgba_t(p[3+0].f,p[3+1].f,p[3+2].f,p[3+3].f);
     break;
   default:
     assert(0);
@@ -66,19 +66,19 @@ void glopLight(GLContext *c,GLParam *p)
 
   switch(type) {
   case GL_AMBIENT:
-    l->ambient=COLOR4(v[0],v[1],v[2],v[3]);
+    l->ambient=rgba_t(v[0],v[1],v[2],v[3]);
     break;
   case GL_DIFFUSE:
-    l->diffuse=COLOR4(v[0],v[1],v[2],v[3]);
+    l->diffuse=rgba_t(v[0],v[1],v[2],v[3]);
     break;
   case GL_SPECULAR:
-    l->specular=COLOR4(v[0],v[1],v[2],v[3]);
+    l->specular=rgba_t(v[0],v[1],v[2],v[3]);
     break;
   case GL_POSITION:
     {
-      V4 pos;
-      V4 _v=V4(v[0],v[1],v[2],v[3]); 
-      pos =c->matrix_stack_ptr[0]->MulV4(_v);
+      vec4_t pos;
+      vec4_t _v=vec4_t(v[0],v[1],v[2],v[3]); 
+      pos =c->matrix_stack_ptr[0]->Mulvec4_t(_v);
 
       l->position=pos;
 
@@ -92,8 +92,8 @@ void glopLight(GLContext *c,GLParam *p)
     }
     break;
   case GL_SPOT_DIRECTION:  
-      l->spot_direction=V3(v[0],v[1],v[2]); 
-      l->norm_spot_direction=V3(v[0],v[1],v[2]); 
+      l->spot_direction=vec3_t(v[0],v[1],v[2]); 
+      l->norm_spot_direction=vec3_t(v[0],v[1],v[2]); 
     l->norm_spot_direction.Norm();
     break;
   case GL_SPOT_EXPONENT:
@@ -129,7 +129,7 @@ void glopLightModel(GLContext *c,GLParam *p)
 
   switch(pname) {
   case GL_LIGHT_MODEL_AMBIENT: 
-      c->ambient_light_model=COLOR4(p[2 + 0].f,p[2 + 1].f,p[2 + 2].f,p[2 + 3].f);
+      c->ambient_light_model=rgba_t(p[2 + 0].f,p[2 + 1].f,p[2 + 2].f,p[2 + 3].f);
     break;
   case GL_LIGHT_MODEL_LOCAL_VIEWER:
     c->local_light_model=(int)p[2].f;
@@ -174,7 +174,7 @@ void gl_shade_vertex(GLContext *c,GLVertex *v)
   float R,G,B,A;
   GLMaterial *m;
   GLLight *l;
-  V3 n,s,d;
+  vec3_t n,s,d;
   float dist,tmp,att,dot,dot_spot,dot_spec;
   int twoside = c->light_model_two_side;
 
@@ -246,7 +246,7 @@ void gl_shade_vertex(GLContext *c,GLVertex *v)
       /* specular light */
       
       if (c->local_light_model) {
-        V3 vcoord;
+        vec3_t vcoord;
         vcoord.X=v->ec.X;
         vcoord.Y=v->ec.Y;
         vcoord.Z=v->ec.Z;

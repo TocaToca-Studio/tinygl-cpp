@@ -3,6 +3,7 @@
 
 #include "msghandling.hpp"
 
+#include <stdint.h>
 /* It is possible to enable/disable (compile time) features in this
    header file. */
 
@@ -28,10 +29,7 @@
 
 /* enable various convertion code from internal pixel format (usually
    16 bits per pixel) to any external format */
-#define TGL_FEATURE_16_BITS        1
-#define TGL_FEATURE_8_BITS         1
-#define TGL_FEATURE_24_BITS        1
-#define TGL_FEATURE_32_BITS        1
+
 
 /*
  * Memory allocator for TinyGL

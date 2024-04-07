@@ -3,7 +3,7 @@
 
 # linux
 CC= g++
-CFLAGS= -g -Wall -O3 -std=c++98  -Wwrite-strings
+CFLAGS= -g -Wall  -std=c++98  -Wwrite-strings
 LFLAGS=
 
 
@@ -31,19 +31,6 @@ UI_INCLUDES=
 #UI_INCLUDES= 
 
 UI_OBJS=x11.o
-endif
-
-#####################################################################
-# Micro windowX11 configuration (for the examples only)
-
-ifdef TINYGL_USE_NANOX
-UI_LIBS= -lnano-X -lmwengine -lmwdrivers -lmwfonts
-UI_INCLUDES=
-
-# X11 target for nanoX
-UI_LIBS+= -L/usr/X11R6/lib -lX11 -lXext
-
-UI_OBJS=nanox.o
 endif
 
 #####################################################################

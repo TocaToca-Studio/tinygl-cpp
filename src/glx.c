@@ -115,7 +115,7 @@ static int create_ximage(TinyGLXContext *ctx,
 {
   int major,minor;
   Bool pixmaps;
-  unsigned char *framebuffer;
+  uint8_t *framebuffer;
   int (*old_handler)(Display *,XErrorEvent *);
 
   if (XShmQueryVersion(ctx->display,&major,&minor,&pixmaps))
@@ -195,7 +195,7 @@ static int create_ximage(TinyGLXContext *ctx,
   no_shm:
     ctx->ximage=XCreateImage(ctx->display, None, depth, ZPixmap, 0, 
                              NULL,xsize,ysize, 8, 0);
-    framebuffer=(unsigned char*) gl_malloc(ysize * ctx->ximage->bytes_per_line);
+    framebuffer=(uint8_t*) gl_malloc(ysize * ctx->ximage->bytes_per_line);
     ctx->ximage->data = (char *)framebuffer;
     return 0;
 }
@@ -247,9 +247,9 @@ int glX_resize_viewport(GLContext *c,int *xsize_ptr,int *ysize_ptr)
 
   /* resize the Z buffer */
   if (ctx->do_convert) {
-    ZB_resize(c->zb,NULL,xsize,ysize);
+    c->zb->resize(NULL,xsize,ysize);
   } else {
-    ZB_resize(c->zb,ctx->ximage->data,xsize,ysize);
+    c->zb->resize(ctx->ximage->data,xsize,ysize);
   }
   return 0;
 }
@@ -260,12 +260,9 @@ Bool glXMakeCurrent( Display *dpy, GLXDrawable drawable,
 {
   TinyGLXContext *ctx = (TinyGLXContext *) ctx1;
   XWindowAttributes attr;
-  int i,xsize,ysize;
-  int palette[ZB_NB_COLORS];
-  unsigned char color_indexes[ZB_NB_COLORS];
+  int i,xsize,ysize; 
   ZBuffer *zb;
-  XColor xcolor;
-  unsigned long pixel[ZB_NB_COLORS],tmp_plane;
+  XColor xcolor; 
   
   if (ctx->gl_context == NULL) {
     /* create the TinyGL context */
@@ -284,63 +281,19 @@ Bool glXMakeCurrent( Display *dpy, GLXDrawable drawable,
     ctx->ximage=NULL;
     ctx->shm_use=1; /* use shm */
 
-    if (attr.depth == 8) {
-      /* get the colormap from the window */
-      ctx->cmap = attr.colormap;
-
-      if ( XAllocColorCells(ctx->display,ctx->cmap,True,&tmp_plane,0,
-                            pixel,ZB_NB_COLORS) == 0) {
-        /* private cmap */
-        ctx->cmap = XCreateColormap(ctx->display, drawable,  
-                                    ctx->visual_info.visual, AllocAll);
-        XSetWindowColormap(ctx->display, drawable, ctx->cmap);
-        for(i=0;i<ZB_NB_COLORS;i++) pixel[i]=i;
-      }
-
-      for(i=0;i<ZB_NB_COLORS;i++) color_indexes[i]=pixel[i];
-
-      /* Open the Z Buffer - 256 colors */
-      zb=ZB_open(xsize,ysize,ZB_MODE_INDEX,ZB_NB_COLORS,
-                 color_indexes,palette,NULL);
-      if (zb == NULL) {
-        fprintf(stderr, "Error while initializing Z buffer\n");
-        exit(1);
-      }
-
-      for (i=0; i<ZB_NB_COLORS; i++) {
-        xcolor.flags = DoRed | DoGreen | DoBlue;
-        
-        xcolor.red = (palette[i]>>8) & 0xFF00;
-        xcolor.green = (palette[i] & 0xFF00);
-        xcolor.blue = (palette[i] << 8) & 0xFF00;
-        xcolor.pixel = pixel[i];
-        XStoreColor(ctx->display,ctx->cmap,&xcolor);
-      }
+    
+      int mode,bpp;
+      /* RGB 16/24/32 */
+      bpp = bits_per_pixel(ctx->display,&ctx->visual_info);
+      printf("%d BITS PER PIXEL\n",bpp);
+      if(bpp!=32) exit(-1);
+      
       ctx->do_convert = 1;
-    } else {
-        int mode,bpp;
-        /* RGB 16/24/32 */
-        bpp = bits_per_pixel(ctx->display,&ctx->visual_info);
-        switch(bpp) {
-        case 24:
-            mode = ZB_MODE_RGB24;
-            ctx->do_convert = 1;
-            break;
-        case 32:
-            mode = ZB_MODE_RGBA;
-            ctx->do_convert = 1;
-            break;
-        default:
-            mode = ZB_MODE_5R6G5B;
-            ctx->do_convert = 0;
-            break;
-        }
-        zb=ZB_open(xsize,ysize,mode,0,NULL,NULL,NULL);
-        if (zb == NULL) {
-            fprintf(stderr, "Error while initializing Z buffer\n");
-            exit(1);
-        }
-    }
+      zb=ZBuffer::open(xsize,ysize,0,NULL,NULL,NULL);
+      if (zb == NULL) {
+          fprintf(stderr, "Error while initializing Z buffer\n");
+          exit(1);
+      }
 
     /* create a gc */
     ctx->gc = XCreateGC(ctx->display, drawable, 0, 0);
@@ -382,9 +335,10 @@ void glXSwapBuffers( Display *dpy, GLXDrawable drawable )
   
 
   if (ctx->do_convert) {
-    ZB_copyFrameBuffer(ctx->gl_context->zb,
-                       ctx->ximage->data,
-                       ctx->ximage->bytes_per_line);
+     ctx->gl_context->zb->copyFrameBuffer(
+        ctx->ximage->data,
+        ctx->ximage->bytes_per_line
+    );
 
   }
 

@@ -50,7 +50,7 @@ void gl_transform_to_viewport(GLContext *c,GLVertex *v)
 
 static void gl_add_select1(GLContext *c,int z1,int z2,int z3)
 {
-  unsigned int min,max;
+  uint32_t min,max;
   min=max=z1;
   if (z2<min) min=z2;
   if (z3<min) min=z3;
@@ -175,7 +175,7 @@ void gl_draw_line(GLContext *c,GLVertex *p1,GLVertex *p2)
  */
 	 
 #define clip_func(name,sign,dir,dir1,dir2) \
-static float name(V4 *c,V4 *a,V4 *b) \
+static float name(vec4_t *c,vec4_t *a,vec4_t *b) \
 {\
   float t,dX,dY,dZ,dW,den;\
   dX = (b->X - a->X);\
@@ -206,7 +206,7 @@ clip_func(clip_zmin,-,Z,X,Y)
 clip_func(clip_zmax,+,Z,X,Y)
 
 
-float (*clip_proc[6])(V4 *,V4 *,V4 *)=  {
+float (*clip_proc[6])(vec4_t *,vec4_t *,vec4_t *)=  {
     clip_xmin,clip_xmax,
     clip_ymin,clip_ymax,
     clip_zmin,clip_zmax

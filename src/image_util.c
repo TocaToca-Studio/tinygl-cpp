@@ -4,11 +4,11 @@
  * image conversion
  */
 
-void gl_convertRGB_to_5R6G5B(unsigned short *pixmap,unsigned char *rgb,
+void gl_convertRGB_to_5R6G5B(uint16_t *pixmap,uint8_t *rgb,
                              int xsize,int ysize)
 {
   int i,n;
-  unsigned char *p;
+  uint8_t *p;
 
   p=rgb;
   n=xsize*ysize;
@@ -18,18 +18,18 @@ void gl_convertRGB_to_5R6G5B(unsigned short *pixmap,unsigned char *rgb,
   }
 }
 
-void gl_convertRGB_to_8A8R8G8B(unsigned int *pixmap, unsigned char *rgb,
+void gl_convertRGB_to_8A8R8G8B(uint32_t *pixmap, uint8_t *rgb,
                                int xsize, int ysize)
 {
     int i,n;
-    unsigned char *p;
+    uint8_t *p;
     
     p=rgb;
     n=xsize*ysize;
     for(i=0;i<n;i++) {
-        pixmap[i]=(((unsigned int)p[0])<<16) | 
-            (((unsigned int)p[1])<<8) | 
-            (((unsigned int)p[2])); 
+        pixmap[i]=(((uint32_t)p[0])<<16) | 
+            (((uint32_t)p[1])<<8) | 
+            (((uint32_t)p[2])); 
         p+=3;
     }
 }
@@ -51,10 +51,10 @@ static inline int interpolate(int v00,int v01,int v10,int xf,int yf)
  * TODO: more accurate resampling 
  */
 
-void gl_resizeImage(unsigned char *dest,int xsize_dest,int ysize_dest,
-                    unsigned char *src,int xsize_src,int ysize_src)
+void gl_resizeImage(uint8_t *dest,int xsize_dest,int ysize_dest,
+                    uint8_t *src,int xsize_src,int ysize_src)
 {
-  unsigned char *pix,*pix_src;
+  uint8_t *pix,*pix_src;
   float x1,y1,x1inc,y1inc;
   int xi,yi,j,xf,yf,x,y;
 
@@ -102,10 +102,9 @@ void gl_resizeImage(unsigned char *dest,int xsize_dest,int ysize_dest,
 
 /* resizing with no interlating nor nearest pixel */
 
-void gl_resizeImageNoInterpolate(unsigned char *dest,int xsize_dest,int ysize_dest,
-                                 unsigned char *src,int xsize_src,int ysize_src)
-{
-  unsigned char *pix,*pix_src,*pix1;
+void gl_resizeImageNoInterpolate(uint8_t *dest,int xsize_dest,int ysize_dest,
+                                 uint8_t *src,int xsize_src,int ysize_src) {
+  uint8_t *pix,*pix_src,*pix1;
   int x1,y1,x1inc,y1inc;
   int xi,yi,x,y;
 

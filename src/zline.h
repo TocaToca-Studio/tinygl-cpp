@@ -1,47 +1,22 @@
 {
-    int n, dx, dy, sx, pp_inc_1, pp_inc_2;
-    register int a;
-    register PIXEL *pp;
-#if defined(INTERP_RGB)
-    register unsigned int r, g, b;
-#endif
+ 
+ 
+
+ 
 #ifdef INTERP_RGB
-    register unsigned int rinc, ginc, binc;
+    #define RGB(x) x
 #endif
-#ifdef INTERP_Z
-    register unsigned short *pz;
-    int zinc;
-    register int z, zz;
+#ifdef INTERP_RGB 
+    #define RGBPIXEL *pp = RGB_TO_PIXEL(r >> 8,g >> 8,b >> 8)
 #endif
 
-    if (p1->y > p2->y || (p1->y == p2->y && p1->x > p2->x)) {
-	ZBufferPoint *tmp;
-	tmp = p1;
-	p1 = p2;
-	p2 = tmp;
-    }
-    sx = zb->xsize;
-    pp = (PIXEL *) ((char *) zb->pbuf + zb->linesize * p1->y + p1->x * PSZB);
-#ifdef INTERP_Z
-    pz = zb->zbuf + (p1->y * sx + p1->x);
-    z = p1->z;
-#endif
 
-    dx = p2->x - p1->x;
-    dy = p2->y - p1->y;
-#ifdef INTERP_RGB
-    r = p2->r << 8;
-    g = p2->g << 8;
-    b = p2->b << 8;
-#endif
-
-#ifdef INTERP_RGB
-#define RGB(x) x
-#define RGBPIXEL *pp = RGB_TO_PIXEL(r >> 8,g >> 8,b >> 8)
-#else /* INTERP_RGB */
-#define RGB(x)
-#define RGBPIXEL *pp = color
+#ifndef INTERP_RGB /* INTERP_RGB */
+    #define RGB(x)
 #endif /* INTERP_RGB */
+#ifndef INTERP_RGB  
+    #define RGBPIXEL *pp = color
+#endif
 
 #ifdef INTERP_Z
 #define ZZ(x) x

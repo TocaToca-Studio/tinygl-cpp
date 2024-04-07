@@ -1,5 +1,5 @@
 #include <GL/oscontext.h>
-#include "zbuffer.h"
+#include "zbuffer.hpp"
 #include "zgl.hpp"
 #include <GL/gl.h>
 #include <stdlib.h>
@@ -31,7 +31,7 @@ ostgl_create_context(const int xsize,
   
   for (i = 0; i < numbuffers; i++) {
     context->framebuffers[i] = framebuffers[i];
-    zb = ZB_open(xsize, ysize, ZB_MODE_5R6G5B, 0, NULL, NULL, framebuffers[i]);
+    zb = ZBuffer::open(xsize, ysize, 0, NULL, NULL, framebuffers[i]);
     if (zb == NULL) {
       fprintf(stderr, "Error while initializing Z buffer\n");
       exit(1);
@@ -52,7 +52,7 @@ ostgl_delete_context(ostgl_context *context)
 {
   int i;
   for (i = 0; i < context->numbuffers; i++) {
-    ZB_close((ZBuffer*)context->zbs[i]);
+    ZBuffer::close((ZBuffer*)context->zbs[i]);
   }
   gl_free(context->zbs);
   gl_free(context->framebuffers);
@@ -78,7 +78,7 @@ ostgl_resize(ostgl_context *context,
              void **framebuffers)
 {
   int i;
-  for (i = 0; i < context->numbuffers; i++) {
-    ZB_resize((ZBuffer *) context->zbs[i], framebuffers[i], xsize, ysize);
+  for (i = 0; i < context->numbuffers; i++) { 
+    ((ZBuffer *) context->zbs[i])->resize(framebuffers[i], xsize, ysize);
   }
 }

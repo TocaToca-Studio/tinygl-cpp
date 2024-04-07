@@ -1,11 +1,11 @@
 #include <stdlib.h>
-#include "zbuffer.h"
+#include "zbuffer.hpp"
 
 #define ZCMP(z,zpix) ((z) >= (zpix))
 
 void ZB_plot(ZBuffer * zb, ZBufferPoint * p)
 {
-    unsigned short *pz;
+    uint16_t *pz;
     PIXEL *pp;
     int zz;
 
@@ -18,18 +18,78 @@ void ZB_plot(ZBuffer * zb, ZBufferPoint * p)
     }
 }
 
+ 
 #define INTERP_Z
 static void ZB_line_flat_z(ZBuffer * zb, ZBufferPoint * p1, ZBufferPoint * p2, 
                            int color)
 {
+    int n, dx, dy, sx, pp_inc_1, pp_inc_2;
+    register int a;
+    register PIXEL *pp;
+
+    register uint16_t *pz;
+    int zinc;
+    register int z, zz;
+
+    if (p1->y > p2->y || (p1->y == p2->y && p1->x > p2->x)) {
+        ZBufferPoint *tmp;
+        tmp = p1;
+        p1 = p2;
+        p2 = tmp;
+    }
+    sx = zb->xsize;
+    pp = (PIXEL *) ((char *) zb->pbuf + zb->linesize * p1->y + p1->x * PSZB);
+
+    pz = zb->zbuf + (p1->y * sx + p1->x);
+    z = p1->z;
+
+    dx = p2->x - p1->x;
+    dy = p2->y - p1->y;
+
 #include "zline.h"
 }
+
+
+static void zb_line()
 
 /* line with color interpolation */
 #define INTERP_Z
 #define INTERP_RGB
-static void ZB_line_interp_z(ZBuffer * zb, ZBufferPoint * p1, ZBufferPoint * p2)
+static void ZB_line_interp_z(ZBuffer * zb, ZBufferPoint * p1, ZBufferPoint * p2,bool interp_z=true,bool interp_rgb=true)
 {
+    int n, dx, dy, sx, pp_inc_1, pp_inc_2;
+    register int a;
+    register PIXEL *pp;
+    
+    register uint32_t r, g, b;
+    
+    register uint32_t rinc, ginc, binc;
+    
+    register uint16_t *pz;
+    int zinc;
+
+    register int z, zz;
+
+    if (p1->y > p2->y || (p1->y == p2->y && p1->x > p2->x)) {
+        ZBufferPoint *tmp;
+        tmp = p1;
+        p1 = p2;
+        p2 = tmp;
+    }
+    sx = zb->xsize;
+    pp = (PIXEL *) ((char *) zb->pbuf + zb->linesize * p1->y + p1->x * PSZB);
+
+    pz = zb->zbuf + (p1->y * sx + p1->x);
+    z = p1->z;
+
+    dx = p2->x - p1->x;
+    dy = p2->y - p1->y;
+
+
+    r = p2->r << 8;
+    g = p2->g << 8;
+    b = p2->b << 8;
+
 #include "zline.h"
 }
 
@@ -38,12 +98,53 @@ static void ZB_line_interp_z(ZBuffer * zb, ZBufferPoint * p1, ZBufferPoint * p2)
 static void ZB_line_flat(ZBuffer * zb, ZBufferPoint * p1, ZBufferPoint * p2, 
                              int color)
 {
+        int n, dx, dy, sx, pp_inc_1, pp_inc_2;
+    register int a;
+    register PIXEL *pp;
+
+    if (p1->y > p2->y || (p1->y == p2->y && p1->x > p2->x)) {
+        ZBufferPoint *tmp;
+        tmp = p1;
+        p1 = p2;
+        p2 = tmp;
+    }
+    sx = zb->xsize;
+    pp = (PIXEL *) ((char *) zb->pbuf + zb->linesize * p1->y + p1->x * PSZB);
+
+    dx = p2->x - p1->x;
+    dy = p2->y - p1->y;
+
 #include "zline.h"
 }
 
 #define INTERP_RGB
 static void ZB_line_interp(ZBuffer * zb, ZBufferPoint * p1, ZBufferPoint * p2)
 {
+        int n, dx, dy, sx, pp_inc_1, pp_inc_2;
+    register int a;
+    register PIXEL *pp;
+    
+    register uint32_t r, g, b;
+    
+
+    register uint32_t rinc, ginc, binc;
+    
+    if (p1->y > p2->y || (p1->y == p2->y && p1->x > p2->x)) {
+        ZBufferPoint *tmp;
+        tmp = p1;
+        p1 = p2;
+        p2 = tmp;
+    }
+    sx = zb->xsize;
+    pp = (PIXEL *) ((char *) zb->pbuf + zb->linesize * p1->y + p1->x * PSZB);
+
+    dx = p2->x - p1->x;
+    dy = p2->y - p1->y;
+
+
+    r = p2->r << 8;
+    g = p2->g << 8;
+    b = p2->b << 8;
 #include "zline.h"
 }
 

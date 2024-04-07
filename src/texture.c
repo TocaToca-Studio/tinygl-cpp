@@ -67,7 +67,7 @@ void glInitTextures(GLContext *c)
   c->current_texture=find_texture(c,0);
 }
 
-void glGenTextures(int n, unsigned int *textures)
+void glGenTextures(int n, uint32_t *textures)
 {
   GLContext *c=gl_get_context();
   int max,i;
@@ -88,7 +88,7 @@ void glGenTextures(int n, unsigned int *textures)
 }
 
 
-void glDeleteTextures(int n, const unsigned int *textures)
+void glDeleteTextures(int n, const uint32_t *textures)
 {
   GLContext *c=gl_get_context();
   int i;
@@ -131,9 +131,9 @@ void glopTexImage2D(GLContext *c,GLParam *p)
   int border=p[6].i;
   int format=p[7].i;
   int type=p[8].i;
-  unsigned char *pixels=(unsigned char *)p[9].p;
+  uint8_t *pixels=(uint8_t *)p[9].p;
   GLImage *im;
-  unsigned char *pixels1;
+  uint8_t *pixels1;
   int do_free;
 
   if (!(target == GL_TEXTURE_2D && level == 0 && components == 3 && 
@@ -144,7 +144,7 @@ void glopTexImage2D(GLContext *c,GLParam *p)
   
   do_free=0;
   if (width != 256 || height != 256) {
-    pixels1 = (unsigned char *)gl_malloc(256 * 256 * 3);
+    pixels1 = (uint8_t *)gl_malloc(256 * 256 * 3);
     /* no interpolation is done here to respect the original image aliasing ! */
     gl_resizeImageNoInterpolate(pixels1,256,256,pixels,width,height);
     do_free=1;
@@ -161,7 +161,7 @@ void glopTexImage2D(GLContext *c,GLParam *p)
  
   im->pixmap=gl_malloc(width*height*2);
   if(im->pixmap) {
-      gl_convertRGB_to_5R6G5B((short unsigned int *)im->pixmap,pixels1,width,height);
+      gl_convertRGB_to_5R6G5B((uint16_t *)im->pixmap,pixels1,width,height);
   } 
   if (do_free) gl_free(pixels1);
 }

@@ -2,7 +2,7 @@
 
 void glopNormal(GLContext * c, GLParam * p)
 {
-    V3 v;
+    vec3_t v;
 
     v.X = p[1].f;
     v.Y = p[2].f;
@@ -71,7 +71,7 @@ void gl_eval_viewport(GLContext * c)
 void glopBegin(GLContext * c, GLParam * p)
 {
     int type;
-    M4 tmp;
+    mat4_t tmp;
 
     assert(c->in_begin == 0);
 
@@ -91,7 +91,7 @@ void glopBegin(GLContext * c, GLParam * p)
 	} else {
 	    float *m = &c->matrix_model_projection.m[0][0];
 	    /* precompute projection matrix */
-	    c->matrix_model_projection=M4::Mul(c->matrix_stack_ptr[1], c->matrix_stack_ptr[0]);
+	    c->matrix_model_projection=mat4_t::Mul(c->matrix_stack_ptr[1], c->matrix_stack_ptr[0]);
 	    /* test to accelerate computation */
 	    c->matrix_model_projection_no_w_transform = 0;
 	    if (m[12] == 0.0 && m[13] == 0.0 && m[14] == 0.0)
@@ -144,7 +144,7 @@ void glopBegin(GLContext * c, GLParam * p)
 static inline void gl_vertex_transform(GLContext * c, GLVertex * v)
 {
     float *m;
-    V4 *n;
+    vec4_t *n;
 
     if (c->lighting_enabled) {
 	/* eye coordinates needed for lighting */
@@ -249,7 +249,7 @@ void glopVertex(GLContext * c, GLParam * p)
 
     if (c->texture_2d_enabled) {
 	if (c->apply_texture_matrix) {
-		v->tex_coord=c->matrix_stack_ptr[2]->MulV4(c->current_tex_coord);
+		v->tex_coord=c->matrix_stack_ptr[2]->Mulvec4_t(c->current_tex_coord);
 	} else {
 	    v->tex_coord = c->current_tex_coord;
 	}
