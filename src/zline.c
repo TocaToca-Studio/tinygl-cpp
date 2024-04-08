@@ -50,7 +50,6 @@ static void ZB_line_flat_z(ZBuffer * zb, ZBufferPoint * p1, ZBufferPoint * p2,
 }
 
 
-static void zb_line()
 
 /* line with color interpolation */
 #define INTERP_Z

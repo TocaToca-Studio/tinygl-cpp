@@ -1,81 +1,73 @@
 #include "zgl.hpp"
 
-void gl_print_matrix( const float *m)
-{
-   int i;
+void gl_print_matrix(const float *m) {
+  int i;
 
-   for (i=0;i<4;i++) {
-      fprintf(stderr,"%f %f %f %f\n", m[i], m[4+i], m[8+i], m[12+i] );
-   }
-}
-
-static inline void gl_matrix_update(GLContext *c)
-{
-  c->matrix_model_projection_updated=(c->matrix_mode<=1);
-}
-
-
-void glopMatrixMode(GLContext *c,GLParam *p)
-{
-  int mode=p[1].i;
-  switch(mode) {
-  case GL_MODELVIEW:
-    c->matrix_mode=0;
-    break;
-  case GL_PROJECTION:
-    c->matrix_mode=1;
-    break;
-  case GL_TEXTURE:
-    c->matrix_mode=2;
-    break;
-  default:
-    assert(0);
+  for (i = 0; i < 4; i++) {
+    fprintf(stderr, "%f %f %f %f\n", m[i], m[4 + i], m[8 + i], m[12 + i]);
   }
 }
 
-void glopLoadMatrix(GLContext *c,GLParam *p)
-{
+static inline void gl_matrix_update(GLContext *c) {
+  c->matrix_model_projection_updated = (c->matrix_mode <= 1);
+}
+
+void glopMatrixMode(GLContext *c, GLParam *p) {
+  int mode = p[1].i;
+  switch (mode) {
+    case GL_MODELVIEW:
+      c->matrix_mode = 0;
+      break;
+    case GL_PROJECTION:
+      c->matrix_mode = 1;
+      break;
+    case GL_TEXTURE:
+      c->matrix_mode = 2;
+      break;
+    default:
+      assert(0);
+  }
+}
+
+void glopLoadMatrix(GLContext *c, GLParam *p) {
   mat4_t *m;
   int i;
-  
+
   GLParam *q;
 
-  m=c->matrix_stack_ptr[c->matrix_mode];
-  q=p+1;
+  m = c->matrix_stack_ptr[c->matrix_mode];
+  q = p + 1;
 
-  for(i=0;i<4;i++) {
-    m->m[0][i]=q[0].f;
-    m->m[1][i]=q[1].f;
-    m->m[2][i]=q[2].f;
-    m->m[3][i]=q[3].f;
-    q+=4;
+  for (i = 0; i < 4; i++) {
+    m->m[0][i] = q[0].f;
+    m->m[1][i] = q[1].f;
+    m->m[2][i] = q[2].f;
+    m->m[3][i] = q[3].f;
+    q += 4;
   }
 
   gl_matrix_update(c);
 }
 
-void glopLoadIdentity(GLContext *c,GLParam *p)
-{
-
+void glopLoadIdentity(GLContext *c, GLParam *p) {
   c->matrix_stack_ptr[c->matrix_mode]->Id();
 
   gl_matrix_update(c);
 }
 
-void glopMultMatrix(GLContext *c,GLParam *p)
-{
+void glopMultMatrix(GLContext *c, GLParam *p) {
   mat4_t m;
   int i;
 
   GLParam *q;
-  q=p+1;
+  q = p + 1;
 
-  for(i=0;i<4;i++) {
-    m.m[0][i]=q[0].f;
-    m.m[1][i]=q[1].f;
-    m.m[2][i]=q[2].f;
-    m.m[3][i]=q[3].f;
-    q+=4;
+  for (i = 0; i < 4; i++) {
+    m.m[0][i] = q[0].f;
+    m.m[1][i] = q[1].f;
+    m.m[2][i] = q[2].f;
+    m.m[3][i] = q[3].f;
+    q += 4;
   }
 
   c->matrix_stack_ptr[c->matrix_mode]->Mult(&m);
@@ -83,69 +75,63 @@ void glopMultMatrix(GLContext *c,GLParam *p)
   gl_matrix_update(c);
 }
 
-
-void glopPushMatrix(GLContext *c,GLParam *p)
-{
-  int n=c->matrix_mode;
+void glopPushMatrix(GLContext *c, GLParam *p) {
+  int n = c->matrix_mode;
   mat4_t *m;
 
-  assert( (c->matrix_stack_ptr[n] - c->matrix_stack[n] + 1 )
-	   < c->matrix_stack_depth_max[n] );
+  assert((c->matrix_stack_ptr[n] - c->matrix_stack[n] + 1) <
+         c->matrix_stack_depth_max[n]);
 
-  m=++c->matrix_stack_ptr[n];
-  
-  m[0]=m[-1];
+  m = ++c->matrix_stack_ptr[n];
+
+  m[0] = m[-1];
 
   gl_matrix_update(c);
 }
 
-void glopPopMatrix(GLContext *c,GLParam *p)
-{
-  int n=c->matrix_mode;
+void glopPopMatrix(GLContext *c, GLParam *p) {
+  int n = c->matrix_mode;
 
-  assert( c->matrix_stack_ptr[n] > c->matrix_stack[n] );
+  assert(c->matrix_stack_ptr[n] > c->matrix_stack[n]);
   c->matrix_stack_ptr[n]--;
   gl_matrix_update(c);
 }
 
-
-void glopRotate(GLContext *c,GLParam *p)
-{
+void glopRotate(GLContext *c, GLParam *p) {
   mat4_t m;
   float u[3];
   float angle;
   int dir_code;
 
   angle = p[1].f * M_PI / 180.0;
-  u[0]=p[2].f;
-  u[1]=p[3].f;
-  u[2]=p[4].f;
+  u[0] = p[2].f;
+  u[1] = p[3].f;
+  u[2] = p[4].f;
 
   /* simple case detection */
-  dir_code = ((u[0] != 0)<<2) | ((u[1] != 0)<<1) | (u[2] != 0);
+  dir_code = ((u[0] != 0) << 2) | ((u[1] != 0) << 1) | (u[2] != 0);
 
-  switch(dir_code) {
-  case 0:
-    m.Id();
-    break;
-  case 4:
-    if (u[0] < 0) angle=-angle;
-    m.Rotate(angle,0);
-    break;
-  case 2:
-    if (u[1] < 0) angle=-angle;
-    m.Rotate(angle,1);
-    break;
-  case 1:
-    if (u[2] < 0) angle=-angle;
-    m.Rotate(angle,2);
-    break;
-  default:
-    {
+  switch (dir_code) {
+    case 0:
+      m.Id();
+      break;
+    case 4:
+      if (u[0] < 0) angle = -angle;
+      m.Rotate(angle, 0);
+      break;
+    case 2:
+      if (u[1] < 0) angle = -angle;
+      m.Rotate(angle, 1);
+      break;
+    case 1:
+      if (u[2] < 0) angle = -angle;
+      m.Rotate(angle, 2);
+      break;
+    default: {
       float cost, sint;
 
       /* normalize vector */
-      float len = u[0]*u[0]+u[1]*u[1]+u[2]*u[2];
+      float len = u[0] * u[0] + u[1] * u[1] + u[2] * u[2];
       if (len == 0.0f) return;
       len = 1.0f / sqrt(len);
       u[0] *= len;
@@ -153,24 +139,24 @@ void glopRotate(GLContext *c,GLParam *p)
       u[2] *= len;
 
       /* store cos and sin values */
-      cost=cos(angle);
-      sint=sin(angle);
+      cost = cos(angle);
+      sint = sin(angle);
 
       /* fill in the values */
-      m.m[3][0]=m.m[3][1]=m.m[3][2]=
-        m.m[0][3]=m.m[1][3]=m.m[2][3]=0.0f;
-      m.m[3][3]=1.0f;
+      m.m[3][0] = m.m[3][1] = m.m[3][2] = m.m[0][3] = m.m[1][3] = m.m[2][3] =
+          0.0f;
+      m.m[3][3] = 1.0f;
 
       /* do the math */
-      m.m[0][0]=u[0]*u[0]+cost*(1-u[0]*u[0]);
-      m.m[1][0]=u[0]*u[1]*(1-cost)-u[2]*sint;
-      m.m[2][0]=u[2]*u[0]*(1-cost)+u[1]*sint;
-      m.m[0][1]=u[0]*u[1]*(1-cost)+u[2]*sint;
-      m.m[1][1]=u[1]*u[1]+cost*(1-u[1]*u[1]);
-      m.m[2][1]=u[1]*u[2]*(1-cost)-u[0]*sint;
-      m.m[0][2]=u[2]*u[0]*(1-cost)-u[1]*sint;
-      m.m[1][2]=u[1]*u[2]*(1-cost)+u[0]*sint;
-      m.m[2][2]=u[2]*u[2]+cost*(1-u[2]*u[2]);
+      m.m[0][0] = u[0] * u[0] + cost * (1 - u[0] * u[0]);
+      m.m[1][0] = u[0] * u[1] * (1 - cost) - u[2] * sint;
+      m.m[2][0] = u[2] * u[0] * (1 - cost) + u[1] * sint;
+      m.m[0][1] = u[0] * u[1] * (1 - cost) + u[2] * sint;
+      m.m[1][1] = u[1] * u[1] + cost * (1 - u[1] * u[1]);
+      m.m[2][1] = u[1] * u[2] * (1 - cost) - u[0] * sint;
+      m.m[0][2] = u[2] * u[0] * (1 - cost) - u[1] * sint;
+      m.m[1][2] = u[1] * u[2] * (1 - cost) + u[0] * sint;
+      m.m[2][2] = u[2] * u[2] + cost * (1 - u[2] * u[2]);
     }
   }
 
@@ -179,48 +165,51 @@ void glopRotate(GLContext *c,GLParam *p)
   gl_matrix_update(c);
 }
 
-void glopScale(GLContext *c,GLParam *p)
-{
+void glopScale(GLContext *c, GLParam *p) {
   float *m;
-  float x=p[1].f,y=p[2].f,z=p[3].f;
+  float x = p[1].f, y = p[2].f, z = p[3].f;
 
-  m=&c->matrix_stack_ptr[c->matrix_mode]->m[0][0];
+  m = &c->matrix_stack_ptr[c->matrix_mode]->m[0][0];
 
-  m[0] *= x;   m[1] *= y;   m[2]  *= z;
-  m[4] *= x;   m[5] *= y;   m[6]  *= z;
-  m[8] *= x;   m[9] *= y;   m[10] *= z;
-  m[12] *= x;   m[13] *= y;   m[14] *= z;
+  m[0] *= x;
+  m[1] *= y;
+  m[2] *= z;
+  m[4] *= x;
+  m[5] *= y;
+  m[6] *= z;
+  m[8] *= x;
+  m[9] *= y;
+  m[10] *= z;
+  m[12] *= x;
+  m[13] *= y;
+  m[14] *= z;
   gl_matrix_update(c);
 }
 
-void glopTranslate(GLContext *c,GLParam *p)
-{
+void glopTranslate(GLContext *c, GLParam *p) {
   float *m;
-  float x=p[1].f,y=p[2].f,z=p[3].f;
+  float x = p[1].f, y = p[2].f, z = p[3].f;
 
-  m=&c->matrix_stack_ptr[c->matrix_mode]->m[0][0];
+  m = &c->matrix_stack_ptr[c->matrix_mode]->m[0][0];
 
-  m[3] = m[0] * x + m[1] * y + m[2]  * z + m[3];
-  m[7] = m[4] * x + m[5] * y + m[6]  * z + m[7];
+  m[3] = m[0] * x + m[1] * y + m[2] * z + m[3];
+  m[7] = m[4] * x + m[5] * y + m[6] * z + m[7];
   m[11] = m[8] * x + m[9] * y + m[10] * z + m[11];
   m[15] = m[12] * x + m[13] * y + m[14] * z + m[15];
 
   gl_matrix_update(c);
 }
 
-
-void glopFrustum(GLContext *c,GLParam *p)
-{ 
+void glopFrustum(GLContext *c, GLParam *p) {
   mat4_t m;
-  float left=p[1].f;
-  float right=p[2].f;
-  float bottom=p[3].f;
-  float top=p[4].f;
-  float near=p[5].f;
-  float farp=p[6].f; 
-  m=mat4_t::Frustrum(left,right,bottom,top,near,farp);
+  float left = p[1].f;
+  float right = p[2].f;
+  float bottom = p[3].f;
+  float top = p[4].f;
+  float near = p[5].f;
+  float farp = p[6].f;
+  m = mat4_t::Frustrum(left, right, bottom, top, near, farp);
   c->matrix_stack_ptr[c->matrix_mode]->Mult(&m);
 
   gl_matrix_update(c);
 }
-  

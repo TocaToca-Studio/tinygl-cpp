@@ -1,15 +1,16 @@
 /* simple glx driver for TinyGL */
 #include <GL/glx.h>
+#include <X11/extensions/XShm.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
-#include <X11/extensions/XShm.h>
+
 #include "zgl.hpp"
 
 typedef struct {
   GLContext *gl_context;
   Display *display;
   XVisualInfo visual_info;
-  int xsize,ysize;
+  int xsize, ysize;
   XImage *ximage;
   GC gc;
   Colormap cmap;
@@ -21,147 +22,129 @@ typedef struct {
   int CompletionType;
 } TinyGLXContext;
 
-Bool glXQueryExtension( Display *dpy, int *errorb, int *event )
-{
-    return True;
+Bool glXQueryExtension(Display *dpy, int *errorb, int *event) { return True; }
+
+XVisualInfo *glXChooseVisual(Display *dpy, int screen, int *attribList) {
+  XVisualInfo vinfo;
+  int n;
+
+  /* the attribList is ignored : we consider only RGBA rendering (no
+     direct color) */
+
+  if (XMatchVisualInfo(dpy, screen, 16, TrueColor, &vinfo)) {
+    /* 16 bit visual (fastest with TinyGL) */
+  } else if (XMatchVisualInfo(dpy, screen, 24, TrueColor, &vinfo)) {
+    /* 24 bit visual */
+  } else if (XMatchVisualInfo(dpy, screen, 32, TrueColor, &vinfo)) {
+    /* 32 bit visual */
+  } else if (XMatchVisualInfo(dpy, screen, 8, PseudoColor, &vinfo)) {
+    /* 8 bit visual */
+  } else {
+    /* no suitable visual */
+    return NULL;
+  }
+
+  return XGetVisualInfo(dpy, VisualAllMask, &vinfo, &n);
 }
 
-
-XVisualInfo* glXChooseVisual( Display *dpy, int screen,
-                              int *attribList )
-{
-    XVisualInfo vinfo;
-    int n;
-    
-    /* the attribList is ignored : we consider only RGBA rendering (no
-       direct color) */
-    
-    if (XMatchVisualInfo (dpy, screen, 16, TrueColor, &vinfo)) {
-        /* 16 bit visual (fastest with TinyGL) */
-    } else if (XMatchVisualInfo (dpy, screen, 24, TrueColor, &vinfo)) {
-        /* 24 bit visual */
-    } else if (XMatchVisualInfo (dpy, screen, 32, TrueColor, &vinfo)) {
-        /* 32 bit visual */
-    } else if (XMatchVisualInfo (dpy, screen, 8, PseudoColor, &vinfo)) {
-        /* 8 bit visual */
-    } else {
-        /* no suitable visual */
-        return NULL;
-    }
-    
-    return XGetVisualInfo(dpy,VisualAllMask,&vinfo,&n);
-}
-
-
-
-GLXContext glXCreateContext( Display *dpy, XVisualInfo *vis,
-                             GLXContext shareList, Bool direct )
-{
+GLXContext glXCreateContext(Display *dpy, XVisualInfo *vis,
+                            GLXContext shareList, Bool direct) {
   TinyGLXContext *ctx;
 
   if (shareList != NULL) {
     gl_fatal_error("No sharing available in TinyGL");
   }
-  ctx=(TinyGLXContext* )gl_malloc(sizeof(TinyGLXContext));
-  ctx->gl_context=NULL;
-  ctx->visual_info=*vis;
-  return (GLXContext) ctx;
+  ctx = (TinyGLXContext *)gl_malloc(sizeof(TinyGLXContext));
+  ctx->gl_context = NULL;
+  ctx->visual_info = *vis;
+  return (GLXContext)ctx;
 }
 
-
-void glXDestroyContext( Display *dpy, GLXContext ctx1 )
-{
-  TinyGLXContext *ctx = (TinyGLXContext *) ctx1;
+void glXDestroyContext(Display *dpy, GLXContext ctx1) {
+  TinyGLXContext *ctx = (TinyGLXContext *)ctx1;
   if (ctx->gl_context != NULL) {
     glClose();
   }
   gl_free(ctx);
 }
 
+static int glxXErrorFlag = 0;
 
-static int glxXErrorFlag=0;
-
-static int glxHandleXError(Display *dpy,XErrorEvent *event)
-{
-  glxXErrorFlag=1;
+static int glxHandleXError(Display *dpy, XErrorEvent *event) {
+  glxXErrorFlag = 1;
   return 0;
 }
 
-static int bits_per_pixel(Display *dpy, XVisualInfo *visinfo)
-{
-   XImage *img;
-   int bpp;
-   char *data;
+static int bits_per_pixel(Display *dpy, XVisualInfo *visinfo) {
+  XImage *img;
+  int bpp;
+  char *data;
 
-   data = (char*) gl_malloc(8);
-   if (data == NULL) 
-       return visinfo->depth;
+  data = (char *)gl_malloc(8);
+  if (data == NULL) return visinfo->depth;
 
-   img = XCreateImage(dpy, visinfo->visual, visinfo->depth,
-                      ZPixmap, 0, data, 1, 1, 32, 0);
-   if (img == NULL) {
-       gl_free(data);
-       return visinfo->depth;
-   }
-   bpp = img->bits_per_pixel;
-   gl_free(data);
-   img->data = NULL;
-   XDestroyImage(img);
-   return bpp;
+  img = XCreateImage(dpy, visinfo->visual, visinfo->depth, ZPixmap, 0, data, 1,
+                     1, 32, 0);
+  if (img == NULL) {
+    gl_free(data);
+    return visinfo->depth;
+  }
+  bpp = img->bits_per_pixel;
+  gl_free(data);
+  img->data = NULL;
+  XDestroyImage(img);
+  return bpp;
 }
 
-static int create_ximage(TinyGLXContext *ctx,
-                         int xsize,int ysize,int depth)
-{
-  int major,minor;
+static int create_ximage(TinyGLXContext *ctx, int xsize, int ysize, int depth) {
+  int major, minor;
   Bool pixmaps;
   uint8_t *framebuffer;
-  int (*old_handler)(Display *,XErrorEvent *);
+  int (*old_handler)(Display *, XErrorEvent *);
 
-  if (XShmQueryVersion(ctx->display,&major,&minor,&pixmaps))
-    ctx->shm_use=1;
+  if (XShmQueryVersion(ctx->display, &major, &minor, &pixmaps))
+    ctx->shm_use = 1;
   else
-    ctx->shm_use=0;
+    ctx->shm_use = 0;
 
   if (!ctx->shm_use) goto no_shm;
 
-  ctx->shm_info=(XShmSegmentInfo*)gl_malloc(sizeof(XShmSegmentInfo));
-  ctx->ximage=XShmCreateImage(ctx->display,None,depth,ZPixmap,NULL,
-                              ctx->shm_info,xsize,ysize);
+  ctx->shm_info = (XShmSegmentInfo *)gl_malloc(sizeof(XShmSegmentInfo));
+  ctx->ximage = XShmCreateImage(ctx->display, None, depth, ZPixmap, NULL,
+                                ctx->shm_info, xsize, ysize);
   if (ctx->ximage == NULL) {
-    fprintf(stderr,"XShm: error: XShmCreateImage\n");
-    ctx->shm_use=0;
+    fprintf(stderr, "XShm: error: XShmCreateImage\n");
+    ctx->shm_use = 0;
     gl_free(ctx->shm_info);
     goto no_shm;
   }
-  ctx->shm_info->shmid=shmget(IPC_PRIVATE,
-                              ctx->ysize*ctx->ximage->bytes_per_line,
-                              IPC_CREAT | 0777);
+  ctx->shm_info->shmid = shmget(
+      IPC_PRIVATE, ctx->ysize * ctx->ximage->bytes_per_line, IPC_CREAT | 0777);
   if (ctx->shm_info->shmid < 0) {
-    fprintf(stderr,"XShm: error: shmget\n");
+    fprintf(stderr, "XShm: error: shmget\n");
   no_shm1:
-    ctx->shm_use=0;
+    ctx->shm_use = 0;
     XDestroyImage(ctx->ximage);
     goto no_shm;
   }
-  ctx->ximage->data=(char*)shmat(ctx->shm_info->shmid,0,0);
-  if (ctx->ximage->data == (char *) -1) {
-    fprintf(stderr,"XShm: error: shmat\n");
+  ctx->ximage->data = (char *)shmat(ctx->shm_info->shmid, 0, 0);
+  if (ctx->ximage->data == (char *)-1) {
+    fprintf(stderr, "XShm: error: shmat\n");
   no_shm2:
-    shmctl(ctx->shm_info->shmid,IPC_RMID,0);
+    shmctl(ctx->shm_info->shmid, IPC_RMID, 0);
     goto no_shm1;
   }
-  ctx->shm_info->shmaddr=ctx->ximage->data;
-  
-  ctx->shm_info->readOnly=False;
+  ctx->shm_info->shmaddr = ctx->ximage->data;
+
+  ctx->shm_info->readOnly = False;
 
   /* attach & test X errors */
 
-  glxXErrorFlag=0;
-  old_handler=XSetErrorHandler(glxHandleXError);
-  XShmAttach(ctx->display,ctx->shm_info);
+  glxXErrorFlag = 0;
+  old_handler = XSetErrorHandler(glxHandleXError);
+  XShmAttach(ctx->display, ctx->shm_info);
   XSync(ctx->display, False);
-  
+
   if (glxXErrorFlag) {
     XFlush(ctx->display);
     shmdt(ctx->shm_info->shmaddr);
@@ -170,40 +153,37 @@ static int create_ximage(TinyGLXContext *ctx,
   }
 
   /* the shared memory will be automatically deleted */
-  shmctl(ctx->shm_info->shmid,IPC_RMID,0);
+  shmctl(ctx->shm_info->shmid, IPC_RMID, 0);
 
   /* test with a dummy XShmPutImage */
-  XShmPutImage(ctx->display,ctx->drawable,ctx->gc,
-               ctx->ximage,0,0,0,0,1,1,
-               False);
+  XShmPutImage(ctx->display, ctx->drawable, ctx->gc, ctx->ximage, 0, 0, 0, 0, 1,
+               1, False);
 
   XSync(ctx->display, False);
   XSetErrorHandler(old_handler);
-  
+
   if (glxXErrorFlag) {
-    fprintf(stderr,"XShm: error: XShmPutImage\n");
+    fprintf(stderr, "XShm: error: XShmPutImage\n");
     XFlush(ctx->display);
     shmdt(ctx->shm_info->shmaddr);
     goto no_shm2;
   }
-  
-  ctx->CompletionType=XShmGetEventBase(ctx->display) + ShmCompletion;
+
+  ctx->CompletionType = XShmGetEventBase(ctx->display) + ShmCompletion;
   /* shared memory is OK !! */
 
   return 0;
 
-  no_shm:
-    ctx->ximage=XCreateImage(ctx->display, None, depth, ZPixmap, 0, 
-                             NULL,xsize,ysize, 8, 0);
-    framebuffer=(uint8_t*) gl_malloc(ysize * ctx->ximage->bytes_per_line);
-    ctx->ximage->data = (char *)framebuffer;
-    return 0;
+no_shm:
+  ctx->ximage = XCreateImage(ctx->display, None, depth, ZPixmap, 0, NULL, xsize,
+                             ysize, 8, 0);
+  framebuffer = (uint8_t *)gl_malloc(ysize * ctx->ximage->bytes_per_line);
+  ctx->ximage->data = (char *)framebuffer;
+  return 0;
 }
 
-static void free_ximage(TinyGLXContext *ctx)
-{
-  if (ctx->shm_use)
-  {
+static void free_ximage(TinyGLXContext *ctx) {
+  if (ctx->shm_use) {
     XShmDetach(ctx->display, ctx->shm_info);
     XDestroyImage(ctx->ximage);
     shmdt(ctx->shm_info->shmaddr);
@@ -217,96 +197,92 @@ static void free_ximage(TinyGLXContext *ctx)
 /* resize the glx viewport : we try to use the xsize and ysize
    given. We return the effective size which is guaranted to be smaller */
 
-int glX_resize_viewport(GLContext *c,int *xsize_ptr,int *ysize_ptr)
-{
+int glX_resize_viewport(GLContext *c, int *xsize_ptr, int *ysize_ptr) {
   TinyGLXContext *ctx;
-  int xsize,ysize;
+  int xsize, ysize;
 
-  ctx=(TinyGLXContext *)c->opaque;
+  ctx = (TinyGLXContext *)c->opaque;
 
-  xsize=*xsize_ptr;
-  ysize=*ysize_ptr;
+  xsize = *xsize_ptr;
+  ysize = *ysize_ptr;
 
-  /* we ensure that xsize and ysize are multiples of 2 for the zbuffer. 
+  /* we ensure that xsize and ysize are multiples of 2 for the zbuffer.
      TODO: find a better solution */
-  xsize&=~3;
-  ysize&=~3;
+  xsize &= ~3;
+  ysize &= ~3;
 
   if (xsize == 0 || ysize == 0) return -1;
 
-  *xsize_ptr=xsize;
-  *ysize_ptr=ysize;
+  *xsize_ptr = xsize;
+  *ysize_ptr = ysize;
 
   if (ctx->ximage != NULL) free_ximage(ctx);
-  
-  ctx->xsize=xsize;
-  ctx->ysize=ysize;
 
-  if (create_ximage(ctx,ctx->xsize,ctx->ysize,ctx->visual_info.depth) != 0) 
+  ctx->xsize = xsize;
+  ctx->ysize = ysize;
+
+  if (create_ximage(ctx, ctx->xsize, ctx->ysize, ctx->visual_info.depth) != 0)
     return -1;
 
   /* resize the Z buffer */
   if (ctx->do_convert) {
-    c->zb->resize(NULL,xsize,ysize);
+    c->zb->resize(NULL, xsize, ysize);
   } else {
-    c->zb->resize(ctx->ximage->data,xsize,ysize);
+    c->zb->resize(ctx->ximage->data, xsize, ysize);
   }
   return 0;
 }
 
 /* we assume here that drawable is a window */
-Bool glXMakeCurrent( Display *dpy, GLXDrawable drawable,
-                     GLXContext ctx1)
-{
-  TinyGLXContext *ctx = (TinyGLXContext *) ctx1;
+Bool glXMakeCurrent(Display *dpy, GLXDrawable drawable, GLXContext ctx1) {
+  TinyGLXContext *ctx = (TinyGLXContext *)ctx1;
   XWindowAttributes attr;
-  int i,xsize,ysize; 
+  int i, xsize, ysize;
   ZBuffer *zb;
-  XColor xcolor; 
-  
+  XColor xcolor;
+
   if (ctx->gl_context == NULL) {
     /* create the TinyGL context */
 
-    ctx->display=dpy;
-    ctx->drawable=drawable;
+    ctx->display = dpy;
+    ctx->drawable = drawable;
 
-    XGetWindowAttributes(ctx->display,drawable,&attr);
+    XGetWindowAttributes(ctx->display, drawable, &attr);
 
-    xsize=attr.width;
-    ysize=attr.height;
+    xsize = attr.width;
+    ysize = attr.height;
 
     if (attr.depth != ctx->visual_info.depth) return False;
 
     /* ximage structure */
-    ctx->ximage=NULL;
-    ctx->shm_use=1; /* use shm */
+    ctx->ximage = NULL;
+    ctx->shm_use = 1; /* use shm */
 
-    
-      int mode,bpp;
-      /* RGB 16/24/32 */
-      bpp = bits_per_pixel(ctx->display,&ctx->visual_info);
-      printf("%d BITS PER PIXEL\n",bpp);
-      if(bpp!=32) exit(-1);
-      
-      ctx->do_convert = 1;
-      zb=ZBuffer::open(xsize,ysize,0,NULL,NULL,NULL);
-      if (zb == NULL) {
-          fprintf(stderr, "Error while initializing Z buffer\n");
-          exit(1);
-      }
+    int mode, bpp;
+    /* RGB 16/24/32 */
+    bpp = bits_per_pixel(ctx->display, &ctx->visual_info);
+    printf("%d BITS PER PIXEL\n", bpp);
+    if (bpp != 32) exit(-1);
+
+    ctx->do_convert = 1;
+    zb = ZBuffer::open(xsize, ysize, 0, NULL, NULL, NULL);
+    if (zb == NULL) {
+      fprintf(stderr, "Error while initializing Z buffer\n");
+      exit(1);
+    }
 
     /* create a gc */
     ctx->gc = XCreateGC(ctx->display, drawable, 0, 0);
 
     /* initialisation of the TinyGL interpreter */
     glInit(zb);
-    ctx->gl_context=gl_get_context();
-    ctx->gl_context->opaque=(void *) ctx;
-    ctx->gl_context->gl_resize_viewport=glX_resize_viewport;
+    ctx->gl_context = gl_get_context();
+    ctx->gl_context->opaque = (void *)ctx;
+    ctx->gl_context->gl_resize_viewport = glX_resize_viewport;
 
     /* set the viewport : we force a call to glX_resize_viewport */
-    ctx->gl_context->viewport.xsize=-1;
-    ctx->gl_context->viewport.ysize=-1;
+    ctx->gl_context->viewport.xsize = -1;
+    ctx->gl_context->viewport.ysize = -1;
 
     glViewport(0, 0, xsize, ysize);
   }
@@ -314,54 +290,42 @@ Bool glXMakeCurrent( Display *dpy, GLXDrawable drawable,
   return True;
 }
 
-static Bool WaitForShmCompletion(Display *dpy, XEvent *event, char *arg) 
-{
-    TinyGLXContext *ctx=(TinyGLXContext *) arg;
+static Bool WaitForShmCompletion(Display *dpy, XEvent *event, char *arg) {
+  TinyGLXContext *ctx = (TinyGLXContext *)arg;
 
-    return (event->type == ctx->CompletionType) && 
-        ( ((XShmCompletionEvent *)event)->drawable == (Window)ctx->drawable); 
+  return (event->type == ctx->CompletionType) &&
+         (((XShmCompletionEvent *)event)->drawable == (Window)ctx->drawable);
 }
 
-void glXSwapBuffers( Display *dpy, GLXDrawable drawable )
-{
+void glXSwapBuffers(Display *dpy, GLXDrawable drawable) {
   GLContext *gl_context;
   TinyGLXContext *ctx;
 
   /* retrieve the current GLXContext */
-  gl_context=gl_get_context();
-  ctx=(TinyGLXContext *)gl_context->opaque;
+  gl_context = gl_get_context();
+  ctx = (TinyGLXContext *)gl_context->opaque;
 
   /* for non 16 bits visuals, a conversion is required */
-  
 
   if (ctx->do_convert) {
-     ctx->gl_context->zb->copyFrameBuffer(
-        ctx->ximage->data,
-        ctx->ximage->bytes_per_line
-    );
-
+    ctx->gl_context->zb->copyFrameBuffer(ctx->ximage->data,
+                                         ctx->ximage->bytes_per_line);
   }
 
   /* draw the ximage */
   if (ctx->shm_use) {
-      XEvent event;
+    XEvent event;
 
-      XShmPutImage(dpy,drawable,ctx->gc,
-                   ctx->ximage,0,0,0,0,ctx->ximage->width, ctx->ximage->height,
-                   True);
-      XIfEvent(dpy, &event, WaitForShmCompletion, (char*)ctx);
+    XShmPutImage(dpy, drawable, ctx->gc, ctx->ximage, 0, 0, 0, 0,
+                 ctx->ximage->width, ctx->ximage->height, True);
+    XIfEvent(dpy, &event, WaitForShmCompletion, (char *)ctx);
   } else {
-    XPutImage(dpy, drawable, ctx->gc, 
-              ctx->ximage, 0, 0, 0, 0, ctx->ximage->width, ctx->ximage->height);
+    XPutImage(dpy, drawable, ctx->gc, ctx->ximage, 0, 0, 0, 0,
+              ctx->ximage->width, ctx->ximage->height);
   }
   XFlush(dpy);
 }
 
+void glXWaitGL(void) {}
 
-void glXWaitGL( void )
-{
-}
-
-void glXWaitX( void )
-{
-}
+void glXWaitX(void) {}

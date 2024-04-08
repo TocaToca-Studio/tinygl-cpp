@@ -48,14 +48,7 @@ enum {
 #define TGL_OFFSET_FILL    0x1
 #define TGL_OFFSET_LINE    0x2
 #define TGL_OFFSET_POINT   0x4
-
-struct GLSpecBuf {
-  int shininess_i;
-  int last_used;
-  float buf[SPECULAR_BUFFER_SIZE+1];
-  struct GLSpecBuf *next;
-};
-
+ 
 struct GLLight {
   rgba_t ambient;
   rgba_t diffuse;
@@ -154,6 +147,29 @@ struct GLContext;
 
 typedef void (*gl_draw_triangle_func)(struct GLContext *c,
                                       GLVertex *p0,GLVertex *p1,GLVertex *p2);
+
+
+
+typedef struct GLSpecBuf {
+  int shininess_i;
+  int last_used;
+  float buf[SPECULAR_BUFFER_SIZE + 1];
+  struct GLSpecBuf *next;
+
+  inline void calc_buf(const float shininess) {
+    int i;
+    float val, inc;
+    val = 0.0f;
+    inc = 1.0f / SPECULAR_BUFFER_SIZE;
+    for (i = 0; i <= SPECULAR_BUFFER_SIZE; i++) {
+      buf[i] = pow(val, shininess);
+      val += inc;
+    }
+  }
+
+} GLSpecBuf;
+ 
+
 
 /* display context */
 
@@ -276,6 +292,51 @@ struct GLContext {
 
   /* depth test */
   int depth_test;
+
+  inline void specbuf_cleanup() {
+    /* free all memory used */
+
+    // declared here but never implemented
+    // TODO
+  } 
+
+
+
+
+  inline GLSpecBuf *specbuf_get_buffer(const int shininess_i,
+                                const float shininess) {
+    GLSpecBuf *found, *oldest;
+    found = oldest = specbuf_first;
+    while (found && found->shininess_i != shininess_i) {
+      if (found->last_used < oldest->last_used) {
+        oldest = found;
+      }
+      found = found->next;
+    }
+    if (found) { /* hey, found one! */
+      found->last_used = specbuf_used_counter++;
+      return found;
+    }
+    if (oldest == NULL || specbuf_num_buffers < MAX_SPECULAR_BUFFERS) {
+      /* create new buffer */
+      GLSpecBuf *buf = (GLSpecBuf *)gl_malloc(sizeof(GLSpecBuf));
+      if (!buf) gl_fatal_error("could not allocate specular buffer");
+      specbuf_num_buffers++;
+      buf->next = specbuf_first;
+      specbuf_first = buf;
+      buf->last_used = specbuf_used_counter++;
+      buf->shininess_i = shininess_i;
+      buf->calc_buf(shininess);
+      return buf;
+    }
+    /* overwrite the lru buffer */
+    /*tgl_trace("overwriting spec buffer :(\n");*/
+    oldest->shininess_i = shininess_i;
+    oldest->last_used = specbuf_used_counter++;
+    oldest->calc_buf(shininess);
+    return oldest;
+  }
+
 };
 
 extern GLContext *gl_ctx;
@@ -326,10 +387,6 @@ GLContext *gl_get_context(void);
 
 void gl_fatal_error(char *format, ...);
 
-
-/* specular buffer "api" */
-GLSpecBuf *specbuf_get_buffer(GLContext *c, const int shininess_i, 
-                              const float shininess);
  
 
 /* glopXXX functions */
