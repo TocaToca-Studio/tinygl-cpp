@@ -1,0 +1,8 @@
+goals - refactor evertything and simplify code
+- modularize:
+    * RASTER (renderer)
+    * OPENGL API STUFF
+    * MATH AND 3D MODELs STRUCTURE
+- decouple source code and create a platform independent library
+- replace all image buffers into a single framebuffer STRUCTURE
+- remove X11 and GLX and change examples to SDL2

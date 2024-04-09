@@ -188,7 +188,7 @@ struct  ZBuffer {
   }
   
   inline void resize(void* frame_buffer, int xsize, int ysize) {
-    int size;
+    size_t size;
 
     /* xsize must be a multiple of 4 */
     xsize = xsize & ~3;
@@ -202,7 +202,11 @@ struct  ZBuffer {
     gl_free(zbuf);
     zbuf = (uint16_t*)gl_malloc(size);
 
-    if (frame_buffer_allocated) gl_free(pbuf);
+    if (frame_buffer_allocated) {
+      gl_free(pbuf);
+      frame_buffer_allocated=false;
+      pbuf=NULL;
+    }
 
     if (frame_buffer == NULL) {
       pbuf = (PIXEL*)gl_malloc(ysize * linesize);
