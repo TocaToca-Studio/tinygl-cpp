@@ -31,7 +31,7 @@ matrix.o: zgl.hpp zfeatures.h
 list.o: zgl.hpp opinfo.h zfeatures.h
 arrays.c: zgl.hpp zfeatures.h
 glx.o: zgl.hpp zfeatures.h
-zline.o: zgl.hpp zfeatures.h zline.h
+zline.o: zgl.hpp zfeatures.h
 
-ztriangle.o: ztriangle.c ztriangle.h zgl.hpp zfeatures.h
+ztriangle.o: ztriangle.c zgl.hpp zfeatures.h
 	$(CC) $(CFLAGS) -Wno-uninitialized $(INCLUDES) -c $*.c
