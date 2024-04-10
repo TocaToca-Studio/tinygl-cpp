@@ -2,24 +2,10 @@
 
 #include "zbuffer.hpp"
 
-#define ZCMP(z, zpix) ((z) >= (zpix))
 
-void ZB_plot(ZBuffer *zb, ZBufferPoint *p) {
-  uint16_t *pz;
-  PIXEL *pp;
-  int zz;
-
-  pz = zb->zbuf + (p->y * zb->xsize + p->x);
-  pp = (PIXEL *)((char *)zb->pbuf + zb->linesize * p->y + p->x * PSZB);
-  zz = p->z >> ZB_POINT_Z_FRAC_BITS;
-  if (ZCMP(zz, *pz)) {
-    *pp = RGB_TO_PIXEL(p->r, p->g, p->b);
-    *pz = zz;
-  }
-}
 
 static void ZB_line_flat_z(ZBuffer *zb, ZBufferPoint *p1, ZBufferPoint *p2,
-                           int color) {
+                           uint16_t color) {
   int n, dx, dy, sx, pp_inc_1, pp_inc_2;
   register int a;
   register PIXEL *pp;
@@ -35,7 +21,7 @@ static void ZB_line_flat_z(ZBuffer *zb, ZBufferPoint *p1, ZBufferPoint *p2,
     p2 = tmp;
   }
   sx = zb->xsize;
-  pp = (PIXEL *)((char *)zb->pbuf + zb->linesize * p1->y + p1->x * PSZB);
+  pp = zb->pixel_pointer(p1->x,p1->y);
 
   pz = zb->zbuf + (p1->y * sx + p1->x);
   z = p1->z;
@@ -186,7 +172,7 @@ static void ZB_line_interp_z(ZBuffer *zb, ZBufferPoint *p1, ZBufferPoint *p2,
   register int a;
   register PIXEL *pp;
 
-  register uint32_t r, g, b;
+  register uint8_t r, g, b;
 
   register uint32_t rinc, ginc, binc;
 
@@ -202,7 +188,7 @@ static void ZB_line_interp_z(ZBuffer *zb, ZBufferPoint *p1, ZBufferPoint *p2,
     p2 = tmp;
   }
   sx = zb->xsize;
-  pp = (PIXEL *)((char *)zb->pbuf + zb->linesize * p1->y + p1->x * PSZB);
+  pp = zb->pixel_pointer(p1->x,p1->y);
 
   pz = zb->zbuf + (p1->y * sx + p1->x);
   z = p1->z;
@@ -381,7 +367,7 @@ static void ZB_line_flat(ZBuffer *zb, ZBufferPoint *p1, ZBufferPoint *p2,
     p2 = tmp;
   }
   sx = zb->xsize;
-  pp = (PIXEL *)((char *)zb->pbuf + zb->linesize * p1->y + p1->x * PSZB);
+  pp = zb->pixel_pointer(p1->x,p1->y);
 
   dx = p2->x - p1->x;
   dy = p2->y - p1->y;
@@ -508,7 +494,7 @@ static void ZB_line_interp(ZBuffer *zb, ZBufferPoint *p1, ZBufferPoint *p2) {
     p2 = tmp;
   }
   sx = zb->xsize;
-  pp = (PIXEL *)((char *)zb->pbuf + zb->linesize * p1->y + p1->x * PSZB);
+  pp = zb->pixel_pointer(p1->x,p1->y);
 
   dx = p2->x - p1->x;
   dy = p2->y - p1->y;

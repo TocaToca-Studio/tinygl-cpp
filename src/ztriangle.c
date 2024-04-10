@@ -58,7 +58,7 @@ void ZB_fillTriangleFlat(ZBuffer *zb, ZBufferPoint *p0, ZBufferPoint *p1,
     d2 = p2->z - p0->z;
     dzdx = (int)(fdy2 * d1 - fdy1 * d2);
     dzdy = (int)(fdx1 * d2 - fdx2 * d1);
-    pp1 = (PIXEL *)((char *)zb->pbuf + zb->linesize * p0->y);
+    pp1 = (PIXEL *)((char *)zb->pbuf + zb->linesize() * p0->y);
     pz1 = zb->zbuf + p0->y * zb->xsize;
 
     {
@@ -213,7 +213,7 @@ void ZB_fillTriangleFlat(ZBuffer *zb, ZBufferPoint *p0, ZBufferPoint *p1,
 
         x2 += dx2dy2;
 
-        pp1 = (PIXEL *)((char *)pp1 + zb->linesize);
+        pp1 = (PIXEL *)((char *)pp1 + zb->linesize());
         pz1 += zb->xsize;
       }
     }
@@ -295,7 +295,7 @@ void ZB_fillTriangleSmooth(ZBuffer *zb, ZBufferPoint *p0, ZBufferPoint *p1,
     dbdx = (int)(fdy2 * d1 - fdy1 * d2);
     dbdy = (int)(fdx1 * d2 - fdx2 * d1);
 
-    pp1 = (PIXEL *)((char *)zb->pbuf + zb->linesize * p0->y);
+    pp1 = (PIXEL *)((char *)zb->pbuf + zb->linesize() * p0->y);
     pz1 = zb->zbuf + p0->y * zb->xsize;
 
     {
@@ -478,16 +478,13 @@ void ZB_fillTriangleSmooth(ZBuffer *zb, ZBufferPoint *p0, ZBufferPoint *p1,
 
         x2 += dx2dy2;
 
-        pp1 = (PIXEL *)((char *)pp1 + zb->linesize);
+        pp1 = (PIXEL *)((char *)pp1 + zb->linesize());
         pz1 += zb->xsize;
       }
     }
   }
 }
 
-void ZB_setTexture(ZBuffer *zb, PIXEL *texture) {
-  zb->current_texture = texture;
-}
 
 void ZB_fillTriangleMapping(ZBuffer *zb, ZBufferPoint *p0, ZBufferPoint *p1,
                             ZBufferPoint *p2) {
@@ -558,7 +555,7 @@ void ZB_fillTriangleMapping(ZBuffer *zb, ZBufferPoint *p0, ZBufferPoint *p1,
     dtdx = (int)(fdy2 * d1 - fdy1 * d2);
     dtdy = (int)(fdx1 * d2 - fdx2 * d1);
 
-    pp1 = (PIXEL *)((char *)zb->pbuf + zb->linesize * p0->y);
+    pp1 = (PIXEL *)((char *)zb->pbuf + zb->linesize() * p0->y);
     pz1 = zb->zbuf + p0->y * zb->xsize;
 
     { texture = zb->current_texture; };
@@ -740,7 +737,7 @@ void ZB_fillTriangleMapping(ZBuffer *zb, ZBufferPoint *p0, ZBufferPoint *p1,
 
         x2 += dx2dy2;
 
-        pp1 = (PIXEL *)((char *)pp1 + zb->linesize);
+        pp1 = (PIXEL *)((char *)pp1 + zb->linesize());
         pz1 += zb->xsize;
       }
     }
@@ -830,7 +827,7 @@ void ZB_fillTriangleMappingPerspective(ZBuffer *zb, ZBufferPoint *p0,
       dtzdy = (fdx1 * d2 - fdx2 * d1);
     }
 
-    pp1 = (PIXEL *)((char *)zb->pbuf + zb->linesize * p0->y);
+    pp1 = (PIXEL *)((char *)zb->pbuf + zb->linesize() * p0->y);
     pz1 = zb->zbuf + p0->y * zb->xsize;
 
     {
@@ -1090,7 +1087,7 @@ void ZB_fillTriangleMappingPerspective(ZBuffer *zb, ZBufferPoint *p0,
 
         x2 += dx2dy2;
 
-        pp1 = (PIXEL *)((char *)pp1 + zb->linesize);
+        pp1 = (PIXEL *)((char *)pp1 + zb->linesize());
         pz1 += zb->xsize;
       }
     }

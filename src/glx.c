@@ -265,7 +265,7 @@ Bool glXMakeCurrent(Display *dpy, GLXDrawable drawable, GLXContext ctx1) {
     if (bpp != 32) exit(-1);
 
     ctx->do_convert = 1;
-    zb = ZBuffer::open(xsize, ysize, 0, NULL, NULL, NULL);
+    zb = ZBuffer::open(xsize, ysize, NULL);
     if (zb == NULL) {
       fprintf(stderr, "Error while initializing Z buffer\n");
       exit(1);

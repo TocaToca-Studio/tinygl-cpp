@@ -61,7 +61,7 @@ void gl_draw_point(GLContext *c, GLVertex *p0) {
     if (c->render_mode == GL_SELECT) {
       gl_add_select(c, p0->zp.z, p0->zp.z);
     } else {
-      ZB_plot(c->zb, &p0->zp);
+      c->zb->plot(&p0->zp);
     }
   }
 }
@@ -402,7 +402,7 @@ void gl_draw_triangle_fill(GLContext *c, GLVertex *p0, GLVertex *p1,
 #ifdef PROFILE
     count_triangles_textured++;
 #endif
-    ZB_setTexture(c->zb, (PIXEL *)c->current_texture->images[0].pixmap);
+    c->zb->setTexture((PIXEL *)c->current_texture->images[0].pixmap);
     ZB_fillTriangleMappingPerspective(c->zb, &p0->zp, &p1->zp, &p2->zp);
   } else if (c->current_shade_model == GL_SMOOTH) {
     ZB_fillTriangleSmooth(c->zb, &p0->zp, &p1->zp, &p2->zp);
@@ -429,7 +429,7 @@ void gl_draw_triangle_line(GLContext *c, GLVertex *p0, GLVertex *p1,
 /* Render a clipped triangle in point mode */
 void gl_draw_triangle_point(GLContext *c, GLVertex *p0, GLVertex *p1,
                             GLVertex *p2) {
-  if (p0->edge_flag) ZB_plot(c->zb, &p0->zp);
-  if (p1->edge_flag) ZB_plot(c->zb, &p1->zp);
-  if (p2->edge_flag) ZB_plot(c->zb, &p2->zp);
+  if (p0->edge_flag) c->zb->plot(&p0->zp);
+  if (p1->edge_flag) c->zb->plot(&p1->zp);
+  if (p2->edge_flag) c->zb->plot(&p2->zp);
 }

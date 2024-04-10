@@ -28,7 +28,7 @@ ostgl_context *ostgl_create_context(const int xsize, const int ysize,
 
   for (i = 0; i < numbuffers; i++) {
     context->framebuffers[i] = framebuffers[i];
-    zb = ZBuffer::open(xsize, ysize, 0, NULL, NULL, framebuffers[i]);
+    zb = ZBuffer::open(xsize, ysize, framebuffers[i]);
     if (zb == NULL) {
       fprintf(stderr, "Error while initializing Z buffer\n");
       exit(1);
