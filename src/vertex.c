@@ -1,7 +1,7 @@
 #include "zgl.hpp"
 
 void glopNormal(GLContext *c, GLParam *p) {
-  vec3_t v;
+  vec3f_t v;
 
   v.x = p[1].f;
   v.y = p[2].f;
@@ -133,7 +133,7 @@ void glopBegin(GLContext *c, GLParam *p) {
 /* TODO : handle all cases */
 static inline void gl_vertex_transform(GLContext *c, GLVertex *v) {
   float *m;
-  vec4_t *n;
+  vec4f_t *n;
 
   if (c->lighting_enabled) {
     /* eye coordinates needed for lighting */
@@ -167,7 +167,7 @@ static inline void gl_vertex_transform(GLContext *c, GLVertex *v) {
     v->normal.z = (n->x * m[8] + n->y * m[9] + n->z * m[10]);
 
     if (c->normalize_enabled) {
-      v->normal.Norm();
+      v->normal.normalize();
     }
   } else {
     /* no eye coordinates needed, no normal */

@@ -3,22 +3,22 @@
 
 #include <math.h>
 
-struct vec3_t {
+struct vec3f_t {
   float x, y, z;
-  inline vec3_t() {
+  inline vec3f_t() {
     x = 0;
     y = 0;
     z = 0;
   }
-  inline vec3_t(float vx, float vy, float vz) {
+  inline vec3f_t(float vx, float vy, float vz) {
     x = vx;
     y = vy;
     z = vz;
   }
-  inline float Len() { return sqrt(x * x + y * y + z * z); }
-  inline void Norm() {
+  inline float length() { return sqrt(x * x + y * y + z * z); }
+  inline void normalize() {
     float n;
-    n = Len();
+    n = length();
     if (n == 0) return;
     x /= n;
     y /= n;
@@ -28,15 +28,15 @@ struct vec3_t {
 
 /* vector arithmetic */
 
-struct vec4_t {
+struct vec4f_t {
   float x, y, z, w;
-  inline vec4_t() {
+  inline vec4f_t() {
     x = 0;
     y = 0;
     z = 0;
     w = 0;
   }
-  inline vec4_t(float vx, float vy, float vz, float vw) {
+  inline vec4f_t(float vx, float vy, float vz, float vw) {
     x = vx;
     y = vy;
     z = vz;
@@ -139,8 +139,8 @@ struct mat4_t {
     m[w][v] = s;
     m[w][w] = c;
   }
-  inline vec4_t Mulvec4_t(const vec4_t &c) {
-    vec4_t a;
+  inline vec4f_t Mulvec4_t(const vec4f_t &c) {
+    vec4f_t a;
     a.x = m[0][0] * c.x + m[0][1] * c.y + m[0][2] * c.z + m[0][3] * c.w;
     a.y = m[1][0] * c.x + m[1][1] * c.y + m[1][2] * c.z + m[1][3] * c.w;
     a.z = m[2][0] * c.x + m[2][1] * c.y + m[2][2] * c.z + m[2][3] * c.w;
@@ -260,15 +260,15 @@ struct M3 {
   }
 };
 
-struct rgba_t {
+struct color4f_t {
   float R, G, B, A;
-  rgba_t() {
+  color4f_t() {
     R = 0;
     G = 0;
     B = 0;
     A = 0;
   }
-  rgba_t(float r, float g, float b, float a) {
+  color4f_t(float r, float g, float b, float a) {
     R = r;
     G = g;
     B = b;

@@ -19,24 +19,24 @@ void glopMaterial(GLContext *c, GLParam *p) {
 
   switch (type) {
     case GL_EMISSION:
-      m->emission = rgba_t(p[3 + 0].f, p[3 + 1].f, p[3 + 2].f, p[3 + 3].f);
+      m->emission = color4f_t(p[3 + 0].f, p[3 + 1].f, p[3 + 2].f, p[3 + 3].f);
       break;
     case GL_AMBIENT:
-      m->ambient = rgba_t(p[3 + 0].f, p[3 + 1].f, p[3 + 2].f, p[3 + 3].f);
+      m->ambient = color4f_t(p[3 + 0].f, p[3 + 1].f, p[3 + 2].f, p[3 + 3].f);
       break;
     case GL_DIFFUSE:
-      m->diffuse = rgba_t(p[3 + 0].f, p[3 + 1].f, p[3 + 2].f, p[3 + 3].f);
+      m->diffuse = color4f_t(p[3 + 0].f, p[3 + 1].f, p[3 + 2].f, p[3 + 3].f);
       break;
     case GL_SPECULAR:
-      m->specular = rgba_t(p[3 + 0].f, p[3 + 1].f, p[3 + 2].f, p[3 + 3].f);
+      m->specular = color4f_t(p[3 + 0].f, p[3 + 1].f, p[3 + 2].f, p[3 + 3].f);
       break;
     case GL_SHININESS:
       m->shininess = p[3].f;
       m->shininess_i = (m->shininess / 128.0f) * SPECULAR_BUFFER_RESOLUTION;
       break;
     case GL_AMBIENT_AND_DIFFUSE:
-      m->diffuse = rgba_t(p[3 + 0].f, p[3 + 1].f, p[3 + 2].f, p[3 + 3].f);
-      m->ambient = rgba_t(p[3 + 0].f, p[3 + 1].f, p[3 + 2].f, p[3 + 3].f);
+      m->diffuse = color4f_t(p[3 + 0].f, p[3 + 1].f, p[3 + 2].f, p[3 + 3].f);
+      m->ambient = color4f_t(p[3 + 0].f, p[3 + 1].f, p[3 + 2].f, p[3 + 3].f);
       break;
     default:
       assert(0);
@@ -65,17 +65,17 @@ void glopLight(GLContext *c, GLParam *p) {
 
   switch (type) {
     case GL_AMBIENT:
-      l->ambient = rgba_t(v[0], v[1], v[2], v[3]);
+      l->ambient = color4f_t(v[0], v[1], v[2], v[3]);
       break;
     case GL_DIFFUSE:
-      l->diffuse = rgba_t(v[0], v[1], v[2], v[3]);
+      l->diffuse = color4f_t(v[0], v[1], v[2], v[3]);
       break;
     case GL_SPECULAR:
-      l->specular = rgba_t(v[0], v[1], v[2], v[3]);
+      l->specular = color4f_t(v[0], v[1], v[2], v[3]);
       break;
     case GL_POSITION: {
-      vec4_t pos;
-      vec4_t _v = vec4_t(v[0], v[1], v[2], v[3]);
+      vec4f_t pos;
+      vec4f_t _v = vec4f_t(v[0], v[1], v[2], v[3]);
       pos = c->matrix_stack_ptr[0]->Mulvec4_t(_v);
 
       l->position = pos;
@@ -85,13 +85,13 @@ void glopLight(GLContext *c, GLParam *p) {
         l->norm_position.y = pos.y;
         l->norm_position.z = pos.z;
 
-        l->norm_position.Norm();
+        l->norm_position.normalize();
       }
     } break;
     case GL_SPOT_DIRECTION:
-      l->spot_direction = vec3_t(v[0], v[1], v[2]);
-      l->norm_spot_direction = vec3_t(v[0], v[1], v[2]);
-      l->norm_spot_direction.Norm();
+      l->spot_direction = vec3f_t(v[0], v[1], v[2]);
+      l->norm_spot_direction = vec3f_t(v[0], v[1], v[2]);
+      l->norm_spot_direction.normalize();
       break;
     case GL_SPOT_EXPONENT:
       l->spot_exponent = v[0];
@@ -123,7 +123,7 @@ void glopLightModel(GLContext *c, GLParam *p) {
   switch (pname) {
     case GL_LIGHT_MODEL_AMBIENT:
       c->ambient_light_model =
-          rgba_t(p[2 + 0].f, p[2 + 1].f, p[2 + 2].f, p[2 + 3].f);
+          color4f_t(p[2 + 0].f, p[2 + 1].f, p[2 + 2].f, p[2 + 3].f);
       break;
     case GL_LIGHT_MODEL_LOCAL_VIEWER:
       c->local_light_model = (int)p[2].f;
@@ -169,7 +169,7 @@ void gl_shade_vertex(GLContext *c, GLVertex *v) {
   float R, G, B, A;
   GLMaterial *m;
   GLLight *l;
-  vec3_t n, s, d;
+  vec3f_t n, s, d;
   float dist, tmp, att, dot, dot_spot, dot_spec;
   int twoside = c->light_model_two_side;
 
@@ -241,11 +241,11 @@ void gl_shade_vertex(GLContext *c, GLVertex *v) {
       /* specular light */
 
       if (c->local_light_model) {
-        vec3_t vcoord;
+        vec3f_t vcoord;
         vcoord.x = v->ec.x;
         vcoord.y = v->ec.y;
         vcoord.z = v->ec.z;
-        vcoord.Norm();
+        vcoord.normalize();
         s.x = d.x - vcoord.x;
         s.y = d.y - vcoord.x;
         s.z = d.z - vcoord.x;

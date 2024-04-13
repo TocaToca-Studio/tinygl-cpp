@@ -165,7 +165,7 @@ void gl_draw_line(GLContext *c, GLVertex *p1, GLVertex *p2) {
  */
 
 #define clip_func(name, sign, dir, dir1, dir2)         \
-  static float name(vec4_t *c, vec4_t *a, vec4_t *b) { \
+  static float name(vec4f_t *c, vec4f_t *a, vec4f_t *b) { \
     float t, dx, dy, dz, dw, den;                      \
     dx = (b->x - a->x);                                \
     dy = (b->y - a->y);                                \
@@ -189,7 +189,7 @@ clip_func(clip_xmin, -, x, y, z)
             clip_func(clip_ymax, +, y, x, z)
                 clip_func(clip_zmin, -, z, x, y)
                     clip_func(clip_zmax, +, z, x, y)
-                        float (*clip_proc[6])(vec4_t *, vec4_t *, vec4_t *) = {
+                        float (*clip_proc[6])(vec4f_t *, vec4f_t *, vec4f_t *) = {
                             clip_xmin, clip_xmax, clip_ymin,
                             clip_ymax, clip_zmin, clip_zmax};
 

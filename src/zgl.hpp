@@ -50,28 +50,28 @@ enum {
 #define TGL_OFFSET_POINT   0x4
  
 struct GLLight {
-  rgba_t ambient;
-  rgba_t diffuse;
-  rgba_t specular;
-  vec4_t position;	
-  vec3_t spot_direction;
+  color4f_t ambient;
+  color4f_t diffuse;
+  color4f_t specular;
+  vec4f_t position;	
+  vec3f_t spot_direction;
   float spot_exponent;
   float spot_cutoff;
   float attenuation[3];
   /* precomputed values */
   float cos_spot_cutoff;
-  vec3_t norm_spot_direction;
-  vec3_t norm_position;
+  vec3f_t norm_spot_direction;
+  vec3f_t norm_position;
   /* we use a linked list to know which are the enabled lights */
   int enabled;
   struct GLLight *next,*prev;
 };
 
 struct GLMaterial {
-  rgba_t emission;
-  rgba_t ambient;
-  rgba_t diffuse;
-  rgba_t specular;
+  color4f_t emission;
+  color4f_t ambient;
+  color4f_t diffuse;
+  color4f_t specular;
   float shininess;
 
   /* computed values */
@@ -82,8 +82,8 @@ struct GLMaterial {
 
 struct GLViewport {
   int xmin,ymin,xsize,ysize;
-  vec3_t scale;
-  vec3_t trans;
+  vec3f_t scale;
+  vec3f_t trans;
   int updated;
 };
 
@@ -108,14 +108,14 @@ struct GLList {
 
 struct GLVertex {
   int edge_flag;
-  vec3_t normal;
-  vec4_t coord;
-  vec4_t tex_coord;
-  rgba_t color;
+  vec3f_t normal;
+  vec4f_t coord;
+  vec4f_t tex_coord;
+  color4f_t color;
   
   /* computed values */
-  vec4_t ec;                /* eye coordinates */
-  vec4_t pc;                /* coordinates in the normalized volume */
+  vec4f_t ec;                /* eye coordinates */
+  vec4f_t pc;                /* coordinates in the normalized volume */
   int clip_code;        /* clip code */
   ZBufferPoint zp;      /* integer coordinates for the rasterization */
 };
@@ -180,7 +180,7 @@ struct GLContext {
   /* lights */
   GLLight lights[MAX_LIGHTS];
   GLLight *first_light;
-  rgba_t ambient_light_model;
+  color4f_t ambient_light_model;
   int local_light_model;
   int lighting_enabled;
   int light_model_two_side;
@@ -244,13 +244,13 @@ struct GLContext {
 
   /* clear */
   float clear_depth;
-  rgba_t clear_color;
+  color4f_t clear_color;
 
   /* current vertex state */
-  rgba_t current_color;
+  color4f_t current_color;
   uint32_t longcurrent_color[3]; /* precomputed integer color */
-  vec4_t current_normal;
-  vec4_t current_tex_coord;
+  vec4f_t current_normal;
+  vec4f_t current_tex_coord;
   int current_edge_flag;
 
   /* glBegin / glEnd */
