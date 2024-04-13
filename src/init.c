@@ -97,10 +97,10 @@ void glInit(void *zbuffer1) {
   glInitTextures(c);
 
   /* default state */
-  c->current_color.R = 1.0;
-  c->current_color.G = 1.0;
-  c->current_color.B = 1.0;
-  c->current_color.A = 1.0;
+  c->current_color.r = 1.0;
+  c->current_color.g = 1.0;
+  c->current_color.b = 1.0;
+  c->current_color.a = 1.0;
   c->longcurrent_color[0] = 65535;
   c->longcurrent_color[1] = 65535;
   c->longcurrent_color[2] = 65535;
@@ -126,10 +126,10 @@ void glInit(void *zbuffer1) {
   c->cull_face_enabled = 0;
 
   /* clear */
-  c->clear_color.R = 0;
-  c->clear_color.G = 0;
-  c->clear_color.B = 0;
-  c->clear_color.A = 0;
+  c->clear_color.r = 0;
+  c->clear_color.g = 0;
+  c->clear_color.b = 0;
+  c->clear_color.a = 0;
   c->clear_depth = 0;
 
   /* selection */

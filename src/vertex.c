@@ -23,10 +23,10 @@ void glopTexCoord(GLContext *c, GLParam *p) {
 void glopEdgeFlag(GLContext *c, GLParam *p) { c->current_edge_flag = p[1].i; }
 
 void glopColor(GLContext *c, GLParam *p) {
-  c->current_color.R = p[1].f;
-  c->current_color.G = p[2].f;
-  c->current_color.B = p[3].f;
-  c->current_color.A = p[4].f;
+  c->current_color.r = p[1].f;
+  c->current_color.g = p[2].f;
+  c->current_color.b = p[3].f;
+  c->current_color.a = p[4].f;
   c->longcurrent_color[0] = p[5].ui;
   c->longcurrent_color[1] = p[6].ui;
   c->longcurrent_color[2] = p[7].ui;

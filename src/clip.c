@@ -20,11 +20,11 @@ void gl_transform_to_viewport(GLContext *c, GLVertex *v) {
   v->zp.z = (int)(v->pc.z * winv * c->viewport.scale.z + c->viewport.trans.z);
   /* color */
   if (c->lighting_enabled) {
-    v->zp.r = (int)(v->color.R * (ZB_POINT_RED_MAX - ZB_POINT_RED_MIN) +
+    v->zp.r = (int)(v->color.r * (ZB_POINT_RED_MAX - ZB_POINT_RED_MIN) +
                     ZB_POINT_RED_MIN);
-    v->zp.g = (int)(v->color.G * (ZB_POINT_GREEN_MAX - ZB_POINT_GREEN_MIN) +
+    v->zp.g = (int)(v->color.g * (ZB_POINT_GREEN_MAX - ZB_POINT_GREEN_MIN) +
                     ZB_POINT_GREEN_MIN);
-    v->zp.b = (int)(v->color.B * (ZB_POINT_BLUE_MAX - ZB_POINT_BLUE_MIN) +
+    v->zp.b = (int)(v->color.b * (ZB_POINT_BLUE_MAX - ZB_POINT_BLUE_MIN) +
                     ZB_POINT_BLUE_MIN);
   } else {
     /* no need to convert to integer if no lighting : take current color */
@@ -75,9 +75,9 @@ static inline void interpolate(GLVertex *q, GLVertex *p0, GLVertex *p1,
   q->pc.z = p0->pc.z + (p1->pc.z - p0->pc.z) * t;
   q->pc.w = p0->pc.w + (p1->pc.w - p0->pc.w) * t;
 
-  q->color.R = p0->color.R + (p1->color.R - p0->color.R) * t;
-  q->color.G = p0->color.G + (p1->color.G - p0->color.G) * t;
-  q->color.B = p0->color.B + (p1->color.B - p0->color.B) * t;
+  q->color.r = p0->color.r + (p1->color.r - p0->color.r) * t;
+  q->color.g = p0->color.g + (p1->color.g - p0->color.g) * t;
+  q->color.b = p0->color.b + (p1->color.b - p0->color.b) * t;
 }
 
 /*
@@ -196,13 +196,13 @@ clip_func(clip_xmin, -, x, y, z)
 static inline void updateTmp(GLContext *c, GLVertex *q, GLVertex *p0,
                              GLVertex *p1, float t) {
   if (c->current_shade_model == GL_SMOOTH) {
-    q->color.R = p0->color.R + (p1->color.R - p0->color.R) * t;
-    q->color.G = p0->color.G + (p1->color.G - p0->color.G) * t;
-    q->color.B = p0->color.B + (p1->color.B - p0->color.B) * t;
+    q->color.r = p0->color.r + (p1->color.r - p0->color.r) * t;
+    q->color.g = p0->color.g + (p1->color.g - p0->color.g) * t;
+    q->color.b = p0->color.b + (p1->color.b - p0->color.b) * t;
   } else {
-    q->color.R = p0->color.R;
-    q->color.G = p0->color.G;
-    q->color.B = p0->color.B;
+    q->color.r = p0->color.r;
+    q->color.g = p0->color.g;
+    q->color.b = p0->color.b;
   }
 
   if (c->texture_2d_enabled) {

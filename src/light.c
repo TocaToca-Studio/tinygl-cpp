@@ -166,7 +166,7 @@ void gl_enable_disable_light(GLContext *c, int light, int v) {
 
 /* non optimized lightening model */
 void gl_shade_vertex(GLContext *c, GLVertex *v) {
-  float R, G, B, A;
+  float r, g, b, a;
   GLMaterial *m;
   GLLight *l;
   vec3f_t n, s, d;
@@ -179,18 +179,18 @@ void gl_shade_vertex(GLContext *c, GLVertex *v) {
   n.y = v->normal.y;
   n.z = v->normal.z;
 
-  R = m->emission.R + m->ambient.R * c->ambient_light_model.R;
-  G = m->emission.G + m->ambient.G * c->ambient_light_model.G;
-  B = m->emission.B + m->ambient.B * c->ambient_light_model.B;
-  A = clampf(m->diffuse.A, 0, 1);
+  r = m->emission.r + m->ambient.r * c->ambient_light_model.r;
+  g = m->emission.g + m->ambient.g * c->ambient_light_model.g;
+  b = m->emission.b + m->ambient.b * c->ambient_light_model.b;
+  a = clampf(m->diffuse.a, 0, 1);
 
   for (l = c->first_light; l != NULL; l = l->next) {
     float lR, lB, lG;
 
     /* ambient */
-    lR = l->ambient.R * m->ambient.R;
-    lG = l->ambient.G * m->ambient.G;
-    lB = l->ambient.B * m->ambient.B;
+    lR = l->ambient.r * m->ambient.r;
+    lG = l->ambient.g * m->ambient.g;
+    lB = l->ambient.b * m->ambient.b;
 
     if (l->position.w == 0) {
       /* light at infinity */
@@ -217,9 +217,9 @@ void gl_shade_vertex(GLContext *c, GLVertex *v) {
     if (twoside && dot < 0) dot = -dot;
     if (dot > 0) {
       /* diffuse light */
-      lR += dot * l->diffuse.R * m->diffuse.R;
-      lG += dot * l->diffuse.G * m->diffuse.G;
-      lB += dot * l->diffuse.B * m->diffuse.B;
+      lR += dot * l->diffuse.r * m->diffuse.r;
+      lG += dot * l->diffuse.g * m->diffuse.g;
+      lB += dot * l->diffuse.b * m->diffuse.b;
 
       /* spot light */
       if (l->spot_cutoff != 180) {
@@ -271,19 +271,19 @@ void gl_shade_vertex(GLContext *c, GLVertex *v) {
         idx = (int)(dot_spec * SPECULAR_BUFFER_SIZE);
         if (idx > SPECULAR_BUFFER_SIZE) idx = SPECULAR_BUFFER_SIZE;
         dot_spec = specbuf->buf[idx];
-        lR += dot_spec * l->specular.R * m->specular.R;
-        lG += dot_spec * l->specular.G * m->specular.G;
-        lB += dot_spec * l->specular.B * m->specular.B;
+        lR += dot_spec * l->specular.r * m->specular.r;
+        lG += dot_spec * l->specular.g * m->specular.g;
+        lB += dot_spec * l->specular.b * m->specular.b;
       }
     }
 
-    R += att * lR;
-    G += att * lG;
-    B += att * lB;
+    r += att * lR;
+    g += att * lG;
+    b += att * lB;
   }
 
-  v->color.R = clampf(R, 0, 1);
-  v->color.G = clampf(G, 0, 1);
-  v->color.B = clampf(B, 0, 1);
-  v->color.A = A;
+  v->color.r = clampf(r, 0, 1);
+  v->color.g = clampf(g, 0, 1);
+  v->color.b = clampf(b, 0, 1);
+  v->color.a = a;
 }
