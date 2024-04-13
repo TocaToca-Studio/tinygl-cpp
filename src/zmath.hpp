@@ -4,43 +4,43 @@
 #include <math.h>
 
 struct vec3_t {
-  float X, Y, Z;
+  float x, y, z;
   inline vec3_t() {
-    X = 0;
-    Y = 0;
-    Z = 0;
+    x = 0;
+    y = 0;
+    z = 0;
   }
-  inline vec3_t(float x, float y, float z) {
-    X = x;
-    Y = y;
-    Z = z;
+  inline vec3_t(float vx, float vy, float vz) {
+    x = vx;
+    y = vy;
+    z = vz;
   }
-  inline float Len() { return sqrt(X * X + Y * Y + Z * Z); }
+  inline float Len() { return sqrt(x * x + y * y + z * z); }
   inline void Norm() {
     float n;
     n = Len();
     if (n == 0) return;
-    X /= n;
-    Y /= n;
-    Z /= n;
+    x /= n;
+    y /= n;
+    z /= n;
   }
 };
 
 /* vector arithmetic */
 
 struct vec4_t {
-  float X, Y, Z, W;
+  float x, y, z, w;
   inline vec4_t() {
-    X = 0;
-    Y = 0;
-    Z = 0;
-    W = 0;
+    x = 0;
+    y = 0;
+    z = 0;
+    w = 0;
   }
-  inline vec4_t(float x, float y, float z, float w) {
-    X = x;
-    Y = y;
-    Z = z;
-    W = w;
+  inline vec4_t(float vx, float vy, float vz, float vw) {
+    x = vx;
+    y = vy;
+    z = vz;
+    w = vw;
   }
 };
 
@@ -141,10 +141,10 @@ struct mat4_t {
   }
   inline vec4_t Mulvec4_t(const vec4_t &c) {
     vec4_t a;
-    a.X = m[0][0] * c.X + m[0][1] * c.Y + m[0][2] * c.Z + m[0][3] * c.W;
-    a.Y = m[1][0] * c.X + m[1][1] * c.Y + m[1][2] * c.Z + m[1][3] * c.W;
-    a.Z = m[2][0] * c.X + m[2][1] * c.Y + m[2][2] * c.Z + m[2][3] * c.W;
-    a.W = m[3][0] * c.X + m[3][1] * c.Y + m[3][2] * c.Z + m[3][3] * c.W;
+    a.x = m[0][0] * c.x + m[0][1] * c.y + m[0][2] * c.z + m[0][3] * c.w;
+    a.y = m[1][0] * c.x + m[1][1] * c.y + m[1][2] * c.z + m[1][3] * c.w;
+    a.z = m[2][0] * c.x + m[2][1] * c.y + m[2][2] * c.z + m[2][3] * c.w;
+    a.w = m[3][0] * c.x + m[3][1] * c.y + m[3][2] * c.z + m[3][3] * c.w;
     return a;
   }
   /* inversion of a 4x4 matrix */

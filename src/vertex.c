@@ -3,21 +3,21 @@
 void glopNormal(GLContext *c, GLParam *p) {
   vec3_t v;
 
-  v.X = p[1].f;
-  v.Y = p[2].f;
-  v.Z = p[3].f;
+  v.x = p[1].f;
+  v.y = p[2].f;
+  v.z = p[3].f;
 
-  c->current_normal.X = v.X;
-  c->current_normal.Y = v.Y;
-  c->current_normal.Z = v.Z;
-  c->current_normal.W = 0;
+  c->current_normal.x = v.x;
+  c->current_normal.y = v.y;
+  c->current_normal.z = v.z;
+  c->current_normal.w = 0;
 }
 
 void glopTexCoord(GLContext *c, GLParam *p) {
-  c->current_tex_coord.X = p[1].f;
-  c->current_tex_coord.Y = p[2].f;
-  c->current_tex_coord.Z = p[3].f;
-  c->current_tex_coord.W = p[4].f;
+  c->current_tex_coord.x = p[1].f;
+  c->current_tex_coord.y = p[2].f;
+  c->current_tex_coord.z = p[3].f;
+  c->current_tex_coord.w = p[4].f;
 }
 
 void glopEdgeFlag(GLContext *c, GLParam *p) { c->current_edge_flag = p[1].i; }
@@ -50,13 +50,13 @@ void gl_eval_viewport(GLContext *c) {
 
   v = &c->viewport;
 
-  v->trans.X = ((v->xsize - 0.5) / 2.0) + v->xmin;
-  v->trans.Y = ((v->ysize - 0.5) / 2.0) + v->ymin;
-  v->trans.Z = ((zsize - 0.5) / 2.0) + ((1 << ZB_POINT_Z_FRAC_BITS)) / 2;
+  v->trans.x = ((v->xsize - 0.5) / 2.0) + v->xmin;
+  v->trans.y = ((v->ysize - 0.5) / 2.0) + v->ymin;
+  v->trans.z = ((zsize - 0.5) / 2.0) + ((1 << ZB_POINT_Z_FRAC_BITS)) / 2;
 
-  v->scale.X = (v->xsize - 0.5) / 2.0;
-  v->scale.Y = -(v->ysize - 0.5) / 2.0;
-  v->scale.Z = -((zsize - 0.5) / 2.0);
+  v->scale.x = (v->xsize - 0.5) / 2.0;
+  v->scale.y = -(v->ysize - 0.5) / 2.0;
+  v->scale.z = -((zsize - 0.5) / 2.0);
 }
 
 void glopBegin(GLContext *c, GLParam *p) {
@@ -139,32 +139,32 @@ static inline void gl_vertex_transform(GLContext *c, GLVertex *v) {
     /* eye coordinates needed for lighting */
 
     m = &c->matrix_stack_ptr[0]->m[0][0];
-    v->ec.X =
-        (v->coord.X * m[0] + v->coord.Y * m[1] + v->coord.Z * m[2] + m[3]);
-    v->ec.Y =
-        (v->coord.X * m[4] + v->coord.Y * m[5] + v->coord.Z * m[6] + m[7]);
-    v->ec.Z =
-        (v->coord.X * m[8] + v->coord.Y * m[9] + v->coord.Z * m[10] + m[11]);
-    v->ec.W =
-        (v->coord.X * m[12] + v->coord.Y * m[13] + v->coord.Z * m[14] + m[15]);
+    v->ec.x =
+        (v->coord.x * m[0] + v->coord.y * m[1] + v->coord.z * m[2] + m[3]);
+    v->ec.y =
+        (v->coord.x * m[4] + v->coord.y * m[5] + v->coord.z * m[6] + m[7]);
+    v->ec.z =
+        (v->coord.x * m[8] + v->coord.y * m[9] + v->coord.z * m[10] + m[11]);
+    v->ec.w =
+        (v->coord.x * m[12] + v->coord.y * m[13] + v->coord.z * m[14] + m[15]);
 
     /* projection coordinates */
     m = &c->matrix_stack_ptr[1]->m[0][0];
-    v->pc.X =
-        (v->ec.X * m[0] + v->ec.Y * m[1] + v->ec.Z * m[2] + v->ec.W * m[3]);
-    v->pc.Y =
-        (v->ec.X * m[4] + v->ec.Y * m[5] + v->ec.Z * m[6] + v->ec.W * m[7]);
-    v->pc.Z =
-        (v->ec.X * m[8] + v->ec.Y * m[9] + v->ec.Z * m[10] + v->ec.W * m[11]);
-    v->pc.W =
-        (v->ec.X * m[12] + v->ec.Y * m[13] + v->ec.Z * m[14] + v->ec.W * m[15]);
+    v->pc.x =
+        (v->ec.x * m[0] + v->ec.y * m[1] + v->ec.z * m[2] + v->ec.w * m[3]);
+    v->pc.y =
+        (v->ec.x * m[4] + v->ec.y * m[5] + v->ec.z * m[6] + v->ec.w * m[7]);
+    v->pc.z =
+        (v->ec.x * m[8] + v->ec.y * m[9] + v->ec.z * m[10] + v->ec.w * m[11]);
+    v->pc.w =
+        (v->ec.x * m[12] + v->ec.y * m[13] + v->ec.z * m[14] + v->ec.w * m[15]);
 
     m = &c->matrix_model_view_inv.m[0][0];
     n = &c->current_normal;
 
-    v->normal.X = (n->X * m[0] + n->Y * m[1] + n->Z * m[2]);
-    v->normal.Y = (n->X * m[4] + n->Y * m[5] + n->Z * m[6]);
-    v->normal.Z = (n->X * m[8] + n->Y * m[9] + n->Z * m[10]);
+    v->normal.x = (n->x * m[0] + n->y * m[1] + n->z * m[2]);
+    v->normal.y = (n->x * m[4] + n->y * m[5] + n->z * m[6]);
+    v->normal.z = (n->x * m[8] + n->y * m[9] + n->z * m[10]);
 
     if (c->normalize_enabled) {
       v->normal.Norm();
@@ -174,21 +174,21 @@ static inline void gl_vertex_transform(GLContext *c, GLVertex *v) {
     /* NOTE: W = 1 is assumed */
     m = &c->matrix_model_projection.m[0][0];
 
-    v->pc.X =
-        (v->coord.X * m[0] + v->coord.Y * m[1] + v->coord.Z * m[2] + m[3]);
-    v->pc.Y =
-        (v->coord.X * m[4] + v->coord.Y * m[5] + v->coord.Z * m[6] + m[7]);
-    v->pc.Z =
-        (v->coord.X * m[8] + v->coord.Y * m[9] + v->coord.Z * m[10] + m[11]);
+    v->pc.x =
+        (v->coord.x * m[0] + v->coord.y * m[1] + v->coord.z * m[2] + m[3]);
+    v->pc.y =
+        (v->coord.x * m[4] + v->coord.y * m[5] + v->coord.z * m[6] + m[7]);
+    v->pc.z =
+        (v->coord.x * m[8] + v->coord.y * m[9] + v->coord.z * m[10] + m[11]);
     if (c->matrix_model_projection_no_w_transform) {
-      v->pc.W = m[15];
+      v->pc.w = m[15];
     } else {
-      v->pc.W = (v->coord.X * m[12] + v->coord.Y * m[13] + v->coord.Z * m[14] +
+      v->pc.w = (v->coord.x * m[12] + v->coord.y * m[13] + v->coord.z * m[14] +
                  m[15]);
     }
   }
 
-  v->clip_code = gl_clipcode(v->pc.X, v->pc.Y, v->pc.Z, v->pc.W);
+  v->clip_code = gl_clipcode(v->pc.x, v->pc.y, v->pc.z, v->pc.w);
 }
 
 void glopVertex(GLContext *c, GLParam *p) {
@@ -218,10 +218,10 @@ void glopVertex(GLContext *c, GLParam *p) {
   v = &c->vertex[n];
   n++;
 
-  v->coord.X = p[1].f;
-  v->coord.Y = p[2].f;
-  v->coord.Z = p[3].f;
-  v->coord.W = p[4].f;
+  v->coord.x = p[1].f;
+  v->coord.y = p[2].f;
+  v->coord.z = p[3].f;
+  v->coord.w = p[4].f;
 
   gl_vertex_transform(c, v);
 

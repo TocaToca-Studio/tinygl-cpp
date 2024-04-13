@@ -80,10 +80,10 @@ void glopLight(GLContext *c, GLParam *p) {
 
       l->position = pos;
 
-      if (l->position.W == 0) {
-        l->norm_position.X = pos.X;
-        l->norm_position.Y = pos.Y;
-        l->norm_position.Z = pos.Z;
+      if (l->position.w == 0) {
+        l->norm_position.x = pos.x;
+        l->norm_position.y = pos.y;
+        l->norm_position.z = pos.z;
 
         l->norm_position.Norm();
       }
@@ -175,9 +175,9 @@ void gl_shade_vertex(GLContext *c, GLVertex *v) {
 
   m = &c->materials[0];
 
-  n.X = v->normal.X;
-  n.Y = v->normal.Y;
-  n.Z = v->normal.Z;
+  n.x = v->normal.x;
+  n.y = v->normal.y;
+  n.z = v->normal.z;
 
   R = m->emission.R + m->ambient.R * c->ambient_light_model.R;
   G = m->emission.G + m->ambient.G * c->ambient_light_model.G;
@@ -192,28 +192,28 @@ void gl_shade_vertex(GLContext *c, GLVertex *v) {
     lG = l->ambient.G * m->ambient.G;
     lB = l->ambient.B * m->ambient.B;
 
-    if (l->position.W == 0) {
+    if (l->position.w == 0) {
       /* light at infinity */
-      d.X = l->norm_position.X;
-      d.Y = l->norm_position.Y;
-      d.Z = l->norm_position.Z;
+      d.x = l->norm_position.x;
+      d.y = l->norm_position.y;
+      d.z = l->norm_position.z;
       att = 1;
     } else {
       /* distance attenuation */
-      d.X = l->position.X - v->ec.X;
-      d.Y = l->position.Y - v->ec.Y;
-      d.Z = l->position.Z - v->ec.Z;
-      dist = sqrt(d.X * d.X + d.Y * d.Y + d.Z * d.Z);
+      d.x = l->position.x - v->ec.x;
+      d.y = l->position.y - v->ec.y;
+      d.z = l->position.z - v->ec.z;
+      dist = sqrt(d.x * d.x + d.y * d.y + d.z * d.z);
       if (dist > 1E-10f) {
         tmp = 1 / dist;
-        d.X *= tmp;
-        d.Y *= tmp;
-        d.Z *= tmp;
+        d.x *= tmp;
+        d.y *= tmp;
+        d.z *= tmp;
       }
       att = 1.0f / (l->attenuation[0] +
                     dist * (l->attenuation[1] + dist * l->attenuation[2]));
     }
-    dot = d.X * n.X + d.Y * n.Y + d.Z * n.Z;
+    dot = d.x * n.x + d.y * n.y + d.z * n.z;
     if (twoside && dot < 0) dot = -dot;
     if (dot > 0) {
       /* diffuse light */
@@ -224,8 +224,8 @@ void gl_shade_vertex(GLContext *c, GLVertex *v) {
       /* spot light */
       if (l->spot_cutoff != 180) {
         dot_spot =
-            -(d.X * l->norm_spot_direction.X + d.Y * l->norm_spot_direction.Y +
-              d.Z * l->norm_spot_direction.Z);
+            -(d.x * l->norm_spot_direction.x + d.y * l->norm_spot_direction.y +
+              d.z * l->norm_spot_direction.z);
         if (twoside && dot_spot < 0) dot_spot = -dot_spot;
         if (dot_spot < l->cos_spot_cutoff) {
           /* no contribution */
@@ -242,24 +242,24 @@ void gl_shade_vertex(GLContext *c, GLVertex *v) {
 
       if (c->local_light_model) {
         vec3_t vcoord;
-        vcoord.X = v->ec.X;
-        vcoord.Y = v->ec.Y;
-        vcoord.Z = v->ec.Z;
+        vcoord.x = v->ec.x;
+        vcoord.y = v->ec.y;
+        vcoord.z = v->ec.z;
         vcoord.Norm();
-        s.X = d.X - vcoord.X;
-        s.Y = d.Y - vcoord.X;
-        s.Z = d.Z - vcoord.X;
+        s.x = d.x - vcoord.x;
+        s.y = d.y - vcoord.x;
+        s.z = d.z - vcoord.x;
       } else {
-        s.X = d.X;
-        s.Y = d.Y;
-        s.Z = d.Z + 1.0;
+        s.x = d.x;
+        s.y = d.y;
+        s.z = d.z + 1.0;
       }
-      dot_spec = n.X * s.X + n.Y * s.Y + n.Z * s.Z;
+      dot_spec = n.x * s.x + n.y * s.y + n.z * s.z;
       if (twoside && dot_spec < 0) dot_spec = -dot_spec;
       if (dot_spec > 0) {
         GLSpecBuf *specbuf;
         int idx;
-        tmp = sqrt(s.X * s.X + s.Y * s.Y + s.Z * s.Z);
+        tmp = sqrt(s.x * s.x + s.y * s.y + s.z * s.z);
         if (tmp > 1E-3) {
           dot_spec = dot_spec / tmp;
         }

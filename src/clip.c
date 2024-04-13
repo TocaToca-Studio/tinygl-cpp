@@ -14,10 +14,10 @@ void gl_transform_to_viewport(GLContext *c, GLVertex *v) {
   float winv;
 
   /* coordinates */
-  winv = 1.0 / v->pc.W;
-  v->zp.x = (int)(v->pc.X * winv * c->viewport.scale.X + c->viewport.trans.X);
-  v->zp.y = (int)(v->pc.Y * winv * c->viewport.scale.Y + c->viewport.trans.Y);
-  v->zp.z = (int)(v->pc.Z * winv * c->viewport.scale.Z + c->viewport.trans.Z);
+  winv = 1.0 / v->pc.w;
+  v->zp.x = (int)(v->pc.x * winv * c->viewport.scale.x + c->viewport.trans.x);
+  v->zp.y = (int)(v->pc.y * winv * c->viewport.scale.y + c->viewport.trans.y);
+  v->zp.z = (int)(v->pc.z * winv * c->viewport.scale.z + c->viewport.trans.z);
   /* color */
   if (c->lighting_enabled) {
     v->zp.r = (int)(v->color.R * (ZB_POINT_RED_MAX - ZB_POINT_RED_MIN) +
@@ -36,9 +36,9 @@ void gl_transform_to_viewport(GLContext *c, GLVertex *v) {
   /* texture */
 
   if (c->texture_2d_enabled) {
-    v->zp.s = (int)(v->tex_coord.X * (ZB_POINT_S_MAX - ZB_POINT_S_MIN) +
+    v->zp.s = (int)(v->tex_coord.x * (ZB_POINT_S_MAX - ZB_POINT_S_MIN) +
                     ZB_POINT_S_MIN);
-    v->zp.t = (int)(v->tex_coord.Y * (ZB_POINT_T_MAX - ZB_POINT_T_MIN) +
+    v->zp.t = (int)(v->tex_coord.y * (ZB_POINT_T_MAX - ZB_POINT_T_MIN) +
                     ZB_POINT_T_MIN);
   }
 }
@@ -70,10 +70,10 @@ void gl_draw_point(GLContext *c, GLVertex *p0) {
 
 static inline void interpolate(GLVertex *q, GLVertex *p0, GLVertex *p1,
                                float t) {
-  q->pc.X = p0->pc.X + (p1->pc.X - p0->pc.X) * t;
-  q->pc.Y = p0->pc.Y + (p1->pc.Y - p0->pc.Y) * t;
-  q->pc.Z = p0->pc.Z + (p1->pc.Z - p0->pc.Z) * t;
-  q->pc.W = p0->pc.W + (p1->pc.W - p0->pc.W) * t;
+  q->pc.x = p0->pc.x + (p1->pc.x - p0->pc.x) * t;
+  q->pc.y = p0->pc.y + (p1->pc.y - p0->pc.y) * t;
+  q->pc.z = p0->pc.z + (p1->pc.z - p0->pc.z) * t;
+  q->pc.w = p0->pc.w + (p1->pc.w - p0->pc.w) * t;
 
   q->color.R = p0->color.R + (p1->color.R - p0->color.R) * t;
   q->color.G = p0->color.G + (p1->color.G - p0->color.G) * t;
@@ -123,14 +123,14 @@ void gl_draw_line(GLContext *c, GLVertex *p1, GLVertex *p2) {
   } else if ((cc1 & cc2) != 0) {
     return;
   } else {
-    dx = p2->pc.X - p1->pc.X;
-    dy = p2->pc.Y - p1->pc.Y;
-    dz = p2->pc.Z - p1->pc.Z;
-    dw = p2->pc.W - p1->pc.W;
-    x1 = p1->pc.X;
-    y1 = p1->pc.Y;
-    z1 = p1->pc.Z;
-    w1 = p1->pc.W;
+    dx = p2->pc.x - p1->pc.x;
+    dy = p2->pc.y - p1->pc.y;
+    dz = p2->pc.z - p1->pc.z;
+    dw = p2->pc.w - p1->pc.w;
+    x1 = p1->pc.x;
+    y1 = p1->pc.y;
+    z1 = p1->pc.z;
+    w1 = p1->pc.w;
 
     tmin = 0;
     tmax = 1;
@@ -166,35 +166,29 @@ void gl_draw_line(GLContext *c, GLVertex *p1, GLVertex *p2) {
 
 #define clip_func(name, sign, dir, dir1, dir2)         \
   static float name(vec4_t *c, vec4_t *a, vec4_t *b) { \
-    float t, dX, dY, dZ, dW, den;                      \
-    dX = (b->X - a->X);                                \
-    dY = (b->Y - a->Y);                                \
-    dZ = (b->Z - a->Z);                                \
-    dW = (b->W - a->W);                                \
-    den = -(sign d##dir) + dW;                         \
+    float t, dx, dy, dz, dw, den;                      \
+    dx = (b->x - a->x);                                \
+    dy = (b->y - a->y);                                \
+    dz = (b->z - a->z);                                \
+    dw = (b->w - a->w);                                \
+    den = -(sign d##dir) + dw;                         \
     if (den == 0)                                      \
       t = 0;                                           \
     else                                               \
-      t = (sign a->dir - a->W) / den;                  \
+      t = (sign a->dir - a->w) / den;                  \
     c->dir1 = a->dir1 + t * d##dir1;                   \
     c->dir2 = a->dir2 + t * d##dir2;                   \
-    c->W = a->W + t * dW;                              \
-    c->dir = sign c->W;                                \
+    c->w = a->w + t * dw;                              \
+    c->dir = sign c->w;                                \
     return t;                                          \
   }
 
-clip_func(clip_xmin, -, X, Y, Z)
-
-    clip_func(clip_xmax, +, X, Y, Z)
-
-        clip_func(clip_ymin, -, Y, X, Z)
-
-            clip_func(clip_ymax, +, Y, X, Z)
-
-                clip_func(clip_zmin, -, Z, X, Y)
-
-                    clip_func(clip_zmax, +, Z, X, Y)
-
+clip_func(clip_xmin, -, x, y, z)
+    clip_func(clip_xmax, +, x, y, z)
+        clip_func(clip_ymin, -, y, x, z)
+            clip_func(clip_ymax, +, y, x, z)
+                clip_func(clip_zmin, -, z, x, y)
+                    clip_func(clip_zmax, +, z, x, y)
                         float (*clip_proc[6])(vec4_t *, vec4_t *, vec4_t *) = {
                             clip_xmin, clip_xmax, clip_ymin,
                             clip_ymax, clip_zmin, clip_zmax};
@@ -212,11 +206,11 @@ static inline void updateTmp(GLContext *c, GLVertex *q, GLVertex *p0,
   }
 
   if (c->texture_2d_enabled) {
-    q->tex_coord.X = p0->tex_coord.X + (p1->tex_coord.X - p0->tex_coord.X) * t;
-    q->tex_coord.Y = p0->tex_coord.Y + (p1->tex_coord.Y - p0->tex_coord.Y) * t;
+    q->tex_coord.x = p0->tex_coord.x + (p1->tex_coord.x - p0->tex_coord.x) * t;
+    q->tex_coord.y = p0->tex_coord.y + (p1->tex_coord.y - p0->tex_coord.y) * t;
   }
 
-  q->clip_code = gl_clipcode(q->pc.X, q->pc.Y, q->pc.Z, q->pc.W);
+  q->clip_code = gl_clipcode(q->pc.x, q->pc.y, q->pc.z, q->pc.w);
   if (q->clip_code == 0) gl_transform_to_viewport(c, q);
 }
 
@@ -298,9 +292,9 @@ static void gl_draw_triangle_clip(GLContext *c, GLVertex *p0, GLVertex *p1,
     if (clip_bit == 6) {
 #if 0
       printf("Error:\n");
-      printf("%f %f %f %f\n",p0->pc.X,p0->pc.Y,p0->pc.Z,p0->pc.W);
-      printf("%f %f %f %f\n",p1->pc.X,p1->pc.Y,p1->pc.Z,p1->pc.W);
-      printf("%f %f %f %f\n",p2->pc.X,p2->pc.Y,p2->pc.Z,p2->pc.W);
+      printf("%f %f %f %f\n",p0->pc.x,p0->pc.y,p0->pc.z,p0->pc.w);
+      printf("%f %f %f %f\n",p1->pc.x,p1->pc.y,p1->pc.z,p1->pc.w);
+      printf("%f %f %f %f\n",p2->pc.x,p2->pc.y,p2->pc.z,p2->pc.w);
 #endif
       return;
     }

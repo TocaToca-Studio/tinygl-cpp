@@ -105,17 +105,17 @@ void glInit(void *zbuffer1) {
   c->longcurrent_color[1] = 65535;
   c->longcurrent_color[2] = 65535;
 
-  c->current_normal.X = 1.0;
-  c->current_normal.Y = 0.0;
-  c->current_normal.Z = 0.0;
-  c->current_normal.W = 0.0;
+  c->current_normal.x = 1.0;
+  c->current_normal.y = 0.0;
+  c->current_normal.z = 0.0;
+  c->current_normal.w = 0.0;
 
   c->current_edge_flag = 1;
 
-  c->current_tex_coord.X = 0;
-  c->current_tex_coord.Y = 0;
-  c->current_tex_coord.Z = 0;
-  c->current_tex_coord.W = 1;
+  c->current_tex_coord.x = 0;
+  c->current_tex_coord.y = 0;
+  c->current_tex_coord.z = 0;
+  c->current_tex_coord.w = 1;
 
   c->polygon_mode_front = GL_FILL;
   c->polygon_mode_back = GL_FILL;

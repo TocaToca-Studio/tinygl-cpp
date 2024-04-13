@@ -25,18 +25,18 @@ void glopArrayElement(GLContext *c, GLParam *param) {
   }
   if (states & NORMAL_ARRAY) {
     i = idx * (3 + c->normal_array_stride);
-    c->current_normal.X = c->normal_array[i];
-    c->current_normal.Y = c->normal_array[i + 1];
-    c->current_normal.Z = c->normal_array[i + 2];
-    c->current_normal.Z = 0.0f;
+    c->current_normal.x = c->normal_array[i];
+    c->current_normal.y = c->normal_array[i + 1];
+    c->current_normal.z = c->normal_array[i + 2];
+    c->current_normal.z = 0.0f;
   }
   if (states & TEXCOORD_ARRAY) {
     int size = c->texcoord_array_size;
     i = idx * (size + c->texcoord_array_stride);
-    c->current_tex_coord.X = c->texcoord_array[i];
-    c->current_tex_coord.Y = c->texcoord_array[i + 1];
-    c->current_tex_coord.Z = size > 2 ? c->texcoord_array[i + 2] : 0.0f;
-    c->current_tex_coord.W = size > 3 ? c->texcoord_array[i + 3] : 1.0f;
+    c->current_tex_coord.x = c->texcoord_array[i];
+    c->current_tex_coord.y = c->texcoord_array[i + 1];
+    c->current_tex_coord.z = size > 2 ? c->texcoord_array[i + 2] : 0.0f;
+    c->current_tex_coord.w = size > 3 ? c->texcoord_array[i + 3] : 1.0f;
   }
   if (states & VERTEX_ARRAY) {
     GLParam p[5];
